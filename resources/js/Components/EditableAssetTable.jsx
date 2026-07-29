@@ -417,7 +417,7 @@ export default function EditableAssetTable({
                                 className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-kai-blue bg-kai-blue/10 hover:bg-kai-blue/20 rounded-lg transition"
                             >
                                 <i className="fa-solid fa-pen-to-square text-xs"></i>
-                                Edit Data
+                                Edit / Tambah Data
                             </button>
                         )
                     )}

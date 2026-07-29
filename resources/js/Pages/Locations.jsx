@@ -211,8 +211,13 @@ export default function Locations({ locations = [] }) {
                                                 <option key={st.id} value={st.id}>{st.name}</option>
                                             ))}
                                         </optgroup>
-                                        <optgroup label="Daftar Resort">
+                                        <optgroup label="Daftar Resort & Dipo">
                                             {(locations.data || []).filter(l => l.type === 'resort').map(st => (
+                                                <option key={st.id} value={st.id}>{st.name}</option>
+                                            ))}
+                                        </optgroup>
+                                        <optgroup label="Daftar Unit">
+                                            {(locations.data || []).filter(l => l.type === 'unit').map(st => (
                                                 <option key={st.id} value={st.id}>{st.name}</option>
                                             ))}
                                         </optgroup>
