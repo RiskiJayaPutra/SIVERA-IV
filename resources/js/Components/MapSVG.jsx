@@ -76,10 +76,10 @@ const BVERT = [
 
 const BTOP_Y = 270;
 const BHORIZ = [
-    { id:'st-pagargunung',    x:BX-100, y:BTOP_Y, label:'PAGAR GUNUNG',    net:'icon', r:8, freq:'3+30', major:true },
-    { id:'st-airasam',        x:BX-200, y:BTOP_Y, label:'Air Asam',        net:'swfo', r:6 },
-    { id:'st-sukamerindu',    x:BX-300, y:BTOP_Y, label:'Suka Merindu',    net:'swfo', r:6 },
-    { id:'st-tanjungrambang', x:BX-420, y:BTOP_Y, label:'TANJUNGRAMBANG',  net:'swfo', r:8, freq:'3+30', major:true }
+    { id:'st-pagargunung',    x:BX-160, y:BTOP_Y, label:'PAGAR GUNUNG',    net:'icon', r:8, freq:'3+30', major:true },
+    { id:'st-airasam',        x:BX-280, y:BTOP_Y, label:'Air Asam',        net:'swfo', r:6 },
+    { id:'st-sukamerindu',    x:BX-400, y:BTOP_Y, label:'Suka Merindu',    net:'swfo', r:6 },
+    { id:'st-tanjungrambang', x:BX-540, y:BTOP_Y, label:'TANJUNGRAMBANG',  net:'swfo', r:8, freq:'3+30', major:true }
 ];
 
 const ALL_STATIONS = [...MAIN, ...BVERT, ...BHORIZ];
@@ -319,7 +319,7 @@ export default function MapSVG({ onClickStation, locations = [] }) {
 
         MAIN.forEach(st => { h += drawSt(st, MY); });
         BVERT.forEach(st => { h += drawSt(st); });
-        BHORIZ.forEach(st => { h += drawSt(st); });
+        BHORIZ.forEach(st => { h += drawSt(st, BTOP_Y); });
 
         // TRAIN ICON
         const tx = MAP_W - 180, ty = MY - 155;
