@@ -20,13 +20,11 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; }
 .pulse-node { animation: softPulse 2s ease-in-out infinite; }
 
 /* Sidebar */
-.sidebar { transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1); background: #FFFFFF; }
+.sidebar { transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
 .sidebar-closed { transform: translateX(-100%); }
 .sidebar-open { transform: translateX(0); }
 @media (min-width: 768px) { .sidebar { transform: translateX(0) !important; } }
-.nav-active { background: #F1F5F9; color: #0D2C54; border-right: 3px solid #EF7D00; font-weight: 700; }
-.nav-link { transition: all 0.15s ease; }
-.nav-link:hover { background: #F8FAFC; color: #0D2C54; }
+
 
 /* Modal and Backdrop */
 #sidebarBackdrop { display: none; position: fixed; inset: 0; z-index: 35; background: rgba(0, 0, 0, 0.4); }
