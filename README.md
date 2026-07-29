@@ -16,17 +16,17 @@
 
 ---
 
-## 🚀 Fitur Utama
+## Fitur Utama
 
-- 📍 **Peta Visualisasi Interaktif**: Melihat sebaran aset secara langsung melalui pemetaan stasiun dan unit kerja Divre IV Tanjung Karang.
-- 🏗️ **Dynamic Schema Builder**: Membuat dan mengelola berbagai jenis aset (CCTV, PC, Printer, dll) dengan kolom tabel yang bisa dikustomisasi secara dinamis (Drag & Drop).
-- 📝 **Editable Asset Table (Excel-like)**: Mengelola data aset semudah menggunakan Microsoft Excel. Mendukung edit langsung pada sel (inline editing) dan navigasi menggunakan *keyboard*.
-- 📊 **Dashboard & Statistik Terintegrasi**: Laporan kondisi aset (Baik, Rusak, Perawatan) disajikan dalam angka dan visualisasi *real-time*.
-- 📑 **Export Laporan (Excel & CSV)**: Ekspor data aset secara instan dengan satu klik untuk keperluan pelaporan manajemen.
-- 👥 **Manajemen Pengguna (RBAC)**: Pembagian akses terstruktur antara Admin dan Superadmin.
-- 🎨 **Antarmuka Premium & Responsif**: Dibangun dengan Tailwind CSS untuk menghadirkan desain modern (glassmorphism, micro-animations) yang responsif di segala perangkat.
+- **Peta Visualisasi Interaktif**: Melihat sebaran aset secara langsung melalui pemetaan stasiun dan unit kerja Divre IV Tanjung Karang.
+- **Dynamic Schema Builder**: Membuat dan mengelola berbagai jenis aset (CCTV, PC, Printer, dll) dengan kolom tabel yang bisa dikustomisasi secara dinamis.
+- **Editable Asset Table (Excel-like)**: Mengelola data aset semudah menggunakan Microsoft Excel. Mendukung edit langsung pada sel (inline editing) dan navigasi menggunakan *keyboard*.
+- **Dashboard & Statistik Terintegrasi**: Laporan kondisi aset (Baik, Rusak, Perawatan) disajikan dalam angka dan visualisasi *real-time*.
+- **Export Laporan (Excel)**: Ekspor data aset secara instan dengan satu klik untuk keperluan pelaporan manajemen menggunakan pustaka *Laravel Excel*.
+- **Manajemen Pengguna (RBAC)**: Pembagian akses terstruktur antara Admin dan Superadmin dengan pengelolaan foto profil.
+- **Antarmuka Premium & Responsif**: Dibangun dengan Tailwind CSS untuk menghadirkan desain modern yang responsif di segala perangkat.
 
-## 🛠️ Teknologi yang Digunakan
+## Teknologi yang Digunakan
 
 - **Backend**: Laravel 11.x, PHP 8.3+
 - **Frontend**: React.js 18.x, Inertia.js
@@ -34,17 +34,18 @@
 - **Database**: MySQL / MariaDB
 - **Utilities**: SweetAlert2 (Alerts), Maatwebsite/Excel (Export), React-Easy-Crop (Image Cropping)
 
-## 📦 Panduan Instalasi (Development)
+## Persyaratan Sistem (System Requirements)
 
-Ikuti langkah-langkah di bawah ini untuk menjalankan sistem di lingkungan pengembangan (*local machine*):
+- **OS**: Windows / Linux / macOS
+- **Web Server**: Apache / Nginx
+- **PHP**: Versi 8.3 atau lebih baru
+- **Database**: MySQL 8.0+ atau MariaDB 10.4+
+- **Node.js**: Versi 18 atau lebih baru (Hanya untuk pengembangan)
+- **Composer**: Versi 2.x
 
-### Prasyarat
-- PHP >= 8.3
-- Node.js >= 18.0 & NPM
-- Composer
-- MySQL
+## Panduan Instalasi (Development)
 
-### Instalasi Langkah demi Langkah
+Ikuti langkah-langkah di bawah ini untuk menjalankan sistem di lingkungan pengembangan lokal:
 
 1. **Kloning Repositori**
    ```bash
@@ -87,20 +88,17 @@ Ikuti langkah-langkah di bawah ini untuk menjalankan sistem di lingkungan pengem
    ```
    Aplikasi dapat diakses di `http://localhost:8000`.
 
-## 🔐 Akun Default
+## Akun Default
 Secara default, proses *seeding* akan membuatkan akun superadmin untuk Anda:
 - **Email**: superadmin@kai.id
 - **Password**: password123
 
-## 🏗️ Struktur Direktori Utama
+## Struktur Direktori Utama
 - `app/` - Inti logika aplikasi (Models, Controllers, Exports)
 - `resources/js/Pages/` - Tampilan React / Halaman (Dashboard, Master Aset, dll)
 - `resources/js/Components/` - Komponen React *Reusable* (Tabel Edit, Modal, dll)
 - `routes/web.php` - Daftar rute aplikasi
 
-## 🛡️ Keamanan & Lisensi
+## Keamanan & Lisensi
 
-Sistem ini dikembangkan khusus untuk keperluan internal. Mohon menjaga kerahasiaan *source code* dan data yang ada di dalamnya.
-
----
-*Developed with ❤️ for Divre IV Tanjung Karang.*
+Sistem ini dikembangkan khusus untuk keperluan internal manajemen aset Divre IV Tanjung Karang. Mohon menjaga kerahasiaan *source code* dan data operasional yang ada di dalamnya.
