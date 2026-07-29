@@ -29,8 +29,17 @@ class AssetExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
     {
         $headers = ['No', 'Lokasi'];
         foreach ($this->schemaCols as $col) {
+            if (($col['key'] ?? '') === '_no') continue;
             if (($col['type'] ?? '') === 'display') continue;
-            $headers[] = $col['label'] ?? $col['key'];
+            
+            if (($col['type'] ?? '') === 'group') {
+                foreach ($col['subColumns'] ?? [] as $subCol) {
+                    if (($subCol['type'] ?? '') === 'display') continue;
+                    $headers[] = ($col['label'] ?? '') . ' - ' . ($subCol['label'] ?? $subCol['key']);
+                }
+            } else {
+                $headers[] = $col['label'] ?? $col['key'];
+            }
         }
         return $headers;
     }
@@ -48,13 +57,27 @@ class AssetExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
         $data = $asset->data ?? [];
 
         foreach ($this->schemaCols as $col) {
+            if (($col['key'] ?? '') === '_no') continue;
             if (($col['type'] ?? '') === 'display') continue;
             
-            $val = $data[$col['key']] ?? '';
-            if (is_bool($val)) {
-                $val = $val ? 'Ya' : 'Tidak';
+            if (($col['type'] ?? '') === 'group') {
+                foreach ($col['subColumns'] ?? [] as $subCol) {
+                    if (($subCol['type'] ?? '') === 'display') continue;
+                    $dbKey = $subCol['radioGroupKey'] ?? $subCol['key'] ?? '';
+                    $val = $data[$dbKey] ?? '';
+                    if (is_bool($val)) {
+                        $val = $val ? 'Ya' : 'Tidak';
+                    }
+                    $row[] = $val;
+                }
+            } else {
+                $dbKey = $col['radioGroupKey'] ?? $col['key'] ?? '';
+                $val = $data[$dbKey] ?? '';
+                if (is_bool($val)) {
+                    $val = $val ? 'Ya' : 'Tidak';
+                }
+                $row[] = $val;
             }
-            $row[] = $val;
         }
 
         return $row;

@@ -207,8 +207,8 @@ export default function EditableAssetTable({
                 showConfirmButton: false,
                 timer: 3000
             });
-            // Reload data silently to get new IDs
-            router.reload({ only: ['assets'], preserveScroll: true, preserveState: true });
+            // Reload data entirely to get new IDs, update totals, and re-sync filters
+            router.reload({ preserveScroll: true, preserveState: true });
         }).catch(error => {
             setSaving(false);
             Swal.fire({
