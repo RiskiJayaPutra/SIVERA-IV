@@ -417,7 +417,7 @@ export default function EditableAssetTable({
                                 className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-kai-blue bg-kai-blue/10 hover:bg-kai-blue/20 rounded-lg transition"
                             >
                                 <i className="fa-solid fa-pen-to-square text-xs"></i>
-                                Edit / Tambah Data
+                                Edit Data
                             </button>
                         )
                     )}
@@ -464,7 +464,7 @@ export default function EditableAssetTable({
                             /* Simple header (non-nested) */
                             <tr className="bg-slate-50 border-b border-slate-200 text-xs text-slate-500 font-bold uppercase tracking-wider">
                                 {dataColumns.map((col, i) => (
-                                    <th key={i} className="py-3 px-4 border border-slate-200 bg-slate-50 text-slate-600 text-left align-middle">{col.label}</th>
+                                    <th key={i} className={`py-3 px-4 border border-slate-200 bg-slate-50 text-slate-600 align-middle ${col.type === 'radio' || col.type === 'status' || col.type === 'display' ? 'text-center' : 'text-left'}`}>{col.label}</th>
                                 ))}
                                 {isEditing && <th className="py-3 px-2 w-10 border border-slate-200 bg-slate-50"></th>}
                             </tr>
@@ -500,7 +500,7 @@ export default function EditableAssetTable({
                                                     <td 
                                                         key={`${colIdx}-${sIdx}`} 
                                                         className={`py-2 px-2 text-xs border border-slate-200 ${
-                                                            headerGroups ? 'text-center' : 'px-3'
+                                                            (headerGroups || subCol.type === 'radio' || subCol.type === 'status') ? 'text-center' : 'px-3'
                                                         } ${subCol.mono ? 'font-mono' : ''} ${subCol.bold ? 'font-semibold text-slate-800' : 'text-slate-600'}`}
                                                     >
                                                         {isEditing 
@@ -514,7 +514,7 @@ export default function EditableAssetTable({
                                                 <td 
                                                     key={colIdx} 
                                                     className={`py-2 px-2 text-xs border border-slate-200 ${
-                                                        headerGroups ? 'text-center' : 'px-3'
+                                                        (headerGroups || col.type === 'radio' || col.type === 'status') ? 'text-center' : 'px-3'
                                                     } ${col.mono ? 'font-mono' : ''} ${col.bold ? 'font-semibold text-slate-800' : 'text-slate-600'}`}
                                                 >
                                                     {isEditing 

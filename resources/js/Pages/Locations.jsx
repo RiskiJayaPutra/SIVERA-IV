@@ -9,25 +9,6 @@ export default function Locations({ locations = [] }) {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
     
-    // Build hierarchical data for rendering
-    const locList = locations.data || [];
-    const roots = locList.filter(l => !l.parent_id);
-    const childrenLocs = locList.filter(l => l.parent_id);
-    
-    const hierarchicalLocations = [];
-    roots.forEach(root => {
-        hierarchicalLocations.push(root);
-        const myChildren = childrenLocs.filter(c => c.parent_id === root.id);
-        myChildren.forEach(child => {
-            child._isChild = true;
-            hierarchicalLocations.push(child);
-        });
-    });
-    // Add any orphans (children whose parent doesn't exist)
-    const mappedIds = new Set(hierarchicalLocations.map(l => l.id));
-    const orphans = locList.filter(l => !mappedIds.has(l.id));
-    hierarchicalLocations.push(...orphans);
-
     const { data, setData, post, put, delete: destroy, processing, errors, reset } = useForm({
         id: '',
         name: '',
@@ -125,19 +106,19 @@ export default function Locations({ locations = [] }) {
                             </tr>
                         </thead>
                         <tbody>
-                            {hierarchicalLocations.length === 0 ? (
+                            {!locations.data || locations.data.length === 0 ? (
                                 <tr>
                                     <td colSpan="5" className="py-12 text-center text-slate-400 text-sm">
                                         <i className="fa-solid fa-map-location-dot text-3xl block mb-2 opacity-30"></i>
                                         Belum ada lokasi terdaftar
                                     </td>
                                 </tr>
-                            ) : hierarchicalLocations.map(loc => (
-                                <tr key={loc.id} className={`border-b border-slate-100 hover:bg-slate-50/50 transition group ${loc._isChild ? 'bg-slate-50/30' : ''}`}>
+                            ) : locations.data.map(loc => (
+                                <tr key={loc.id} className="border-b border-slate-100 hover:bg-slate-50/50 transition group">
                                     <td className="py-3 px-4">
-                                        <div className={`flex items-center gap-2.5 ${loc._isChild ? 'ml-6 border-l-2 border-slate-200 pl-3' : ''}`}>
-                                            <span className="w-3 h-3 rounded-full flex-shrink-0" style={{background: loc.type === 'stasiun' ? '#0D2C54' : (loc.type === 'unit' ? '#EA580C' : '#7C3AED')}}></span>
-                                            <span className={`font-semibold ${loc._isChild ? 'text-slate-600 text-xs' : 'text-slate-800'}`}>{loc.name}</span>
+                                        <div className="flex items-center gap-2.5">
+                                            <span className="w-3 h-3 rounded-full flex-shrink-0" style={{background: loc.type === 'stasiun' ? '#0D2C54' : '#7C3AED'}}></span>
+                                            <span className="font-semibold text-slate-800">{loc.name}</span>
                                         </div>
                                     </td>
                                     <td className="py-3 px-4">
@@ -164,7 +145,12 @@ export default function Locations({ locations = [] }) {
                     </table>
                 </div>
                 
-                {/* PAGINATION REMOVED TO SUPPORT FULL HIERARCHY RENDERING */}
+                {/* PAGINATION */}
+                {locations.links && (
+                    <div className="p-4 border-t border-slate-100 bg-slate-50/50">
+                        <Pagination links={locations.links} />
+                    </div>
+                )}
             </div>
 
             {/* CREATE MODAL */}
@@ -202,25 +188,13 @@ export default function Locations({ locations = [] }) {
                             </div>
                             {data.type !== 'stasiun' && (
                                 <div>
-                                    <label className="block text-lg font-bold text-slate-600 mb-1">Induk (Stasiun / Resort)</label>
+                                    <label className="block text-lg font-bold text-slate-600 mb-1">Induk (Stasiun)</label>
                                     <select value={data.parent_id} onChange={e => setData('parent_id', e.target.value)}
                                         className="w-full px-5 py-4 text-xl border border-slate-200 rounded-lg focus:ring-2 focus:ring-kai-orange focus:border-kai-orange">
-                                        <option value="">Pilih Lokasi Induk...</option>
-                                        <optgroup label="Daftar Stasiun">
-                                            {(locations.data || []).filter(l => l.type === 'stasiun').map(st => (
-                                                <option key={st.id} value={st.id}>{st.name}</option>
-                                            ))}
-                                        </optgroup>
-                                        <optgroup label="Daftar Resort & Dipo">
-                                            {(locations.data || []).filter(l => l.type === 'resort').map(st => (
-                                                <option key={st.id} value={st.id}>{st.name}</option>
-                                            ))}
-                                        </optgroup>
-                                        <optgroup label="Daftar Unit">
-                                            {(locations.data || []).filter(l => l.type === 'unit').map(st => (
-                                                <option key={st.id} value={st.id}>{st.name}</option>
-                                            ))}
-                                        </optgroup>
+                                        <option value="">Pilih Stasiun Induk...</option>
+                                        {(locations.data || []).filter(l => l.type === 'stasiun').map(st => (
+                                            <option key={st.id} value={st.id}>{st.name}</option>
+                                        ))}
                                     </select>
                                     {errors.parent_id && <p className="text-red-500 text-sm mt-2">{errors.parent_id}</p>}
                                 </div>

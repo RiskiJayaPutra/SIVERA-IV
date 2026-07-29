@@ -64,9 +64,7 @@ class ReportController extends Controller
             
             if ($request->has('locations') && !empty($request->query('locations'))) {
                 $filterLocs = explode(',', $request->query('locations'));
-                $childrenIds = Location::whereIn('parent_id', $filterLocs)->pluck('id')->toArray();
-                $allLocs = array_merge($filterLocs, $childrenIds);
-                $query->whereIn('location_id', $allLocs);
+                $query->whereIn('location_id', $filterLocs);
             }
 
             $assets = $query->paginate(15)->withQueryString();
@@ -75,7 +73,7 @@ class ReportController extends Controller
         return Inertia::render('Reports', [
             'stats' => $stats,
             'assetTypes' => $assetTypes,
-            'locations' => Location::select('id', 'name', 'type', 'parent_id')->orderBy('name')->get(),
+            'locations' => Location::select('id', 'name')->get(),
             'assets' => $assets,
             'currentType' => $currentType ? $currentType->slug : null,
             'currentSchema' => $currentType ? $currentType->schema : null,
@@ -99,11 +97,6 @@ class ReportController extends Controller
 
         if (empty($categories)) {
             $categories = AssetType::pluck('id')->toArray();
-        }
-
-        if (!empty($locations)) {
-            $childrenIds = Location::whereIn('parent_id', $locations)->pluck('id')->toArray();
-            $locations = array_merge($locations, $childrenIds);
         }
 
         $format = $request->input('format', 'combined');
@@ -133,9 +126,7 @@ class ReportController extends Controller
             $query->whereIn('asset_type_id', $categories);
         }
         if (!empty($locations)) {
-            $childrenIds = Location::whereIn('parent_id', $locations)->pluck('id')->toArray();
-            $allLocs = array_merge($locations, $childrenIds);
-            $query->whereIn('location_id', $allLocs);
+            $query->whereIn('location_id', $locations);
         }
 
         $totalData = (clone $query)->count();

@@ -24,16 +24,8 @@ class DashboardController extends Controller
             $assetQuery->whereIn('location_id', $allowedLocations);
         }
 
-        // Count for locations (include children to aggregate)
+        // Count for locations
         $locations = $locationsQuery->withCount(['assets'])->get();
-
-        // Aggregate assets from child units to their parent stasiun/resort
-        foreach ($locations as $loc) {
-            if ($loc->type === 'stasiun' || $loc->type === 'resort') {
-                $childAssetsCount = $locations->where('parent_id', $loc->id)->sum('assets_count');
-                $loc->assets_count += $childAssetsCount;
-            }
-        }
 
         // Fetch all relevant assets to count dynamically in PHP
         // Because querying JSON across various ambiguous status keys in DB is complex

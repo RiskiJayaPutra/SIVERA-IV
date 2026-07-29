@@ -43,7 +43,7 @@
 
         <tr>
             <td colspan="5" style="font-weight: bold; font-size: 12px; background-color: #f1f5f9;">
-                MASTER ASSET {{ strtoupper($category->name) }} DI {{ strtoupper($loc->parent ? $loc->parent->name . ' - ' . $loc->name : $loc->name) }}
+                MASTER ASSET {{ strtoupper($category->name) }} DI {{ strtoupper($loc->name) }}
             </td>
         </tr>
         <tr>

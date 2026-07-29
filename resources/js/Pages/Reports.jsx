@@ -402,47 +402,22 @@ export default function Reports({ stats, assetTypes = [], locations = [], assets
                                                     />
                                                 </div>
                                                 
-                                                <div className="max-h-[50vh] overflow-y-auto custom-scrollbar pr-2 flex flex-col gap-2">
-                                                    {locations.filter(l => !l.parent_id).filter(loc => loc.name.toLowerCase().includes(modalSearch.toLowerCase()) || locations.some(c => c.parent_id === loc.id && c.name.toLowerCase().includes(modalSearch.toLowerCase()))).map(loc => {
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 max-h-[50vh] overflow-y-auto custom-scrollbar pr-2">
+                                                    {locations.filter(loc => loc.name.toLowerCase().includes(modalSearch.toLowerCase())).map(loc => {
                                                         const isChecked = exportLocations.includes(loc.id);
-                                                        const myChildren = locations.filter(c => c.parent_id === loc.id);
-                                                        const matchesSearch = loc.name.toLowerCase().includes(modalSearch.toLowerCase());
-                                                        
-                                                        // Skip parent if it doesn't match and none of its children match
-                                                        if (!matchesSearch && !myChildren.some(c => c.name.toLowerCase().includes(modalSearch.toLowerCase()))) return null;
-
                                                         return (
-                                                            <div key={loc.id} className="border border-slate-100 rounded-xl overflow-hidden">
-                                                                <label className={`flex items-center gap-3 p-3 cursor-pointer transition ${isChecked ? 'bg-blue-50/50' : 'hover:bg-slate-50'}`}>
-                                                                    <input 
-                                                                        type="checkbox"
-                                                                        checked={isChecked}
-                                                                        onChange={() => handleLocationToggle(loc.id)}
-                                                                        className="rounded text-kai-blue focus:ring-kai-blue border-slate-300 w-4 h-4 shrink-0 cursor-pointer"
-                                                                    />
-                                                                    <div className="flex flex-col">
-                                                                        <span className="text-sm font-bold text-slate-800">{loc.name}</span>
-                                                                    </div>
-                                                                </label>
-                                                                {myChildren.length > 0 && (
-                                                                    <div className="bg-slate-50/50 p-2 pl-10 flex flex-col gap-1 border-t border-slate-100">
-                                                                        {myChildren.filter(c => c.name.toLowerCase().includes(modalSearch.toLowerCase()) || matchesSearch).map(child => {
-                                                                            const isChildChecked = exportLocations.includes(child.id);
-                                                                            return (
-                                                                                <label key={child.id} className={`flex items-center gap-2 p-1.5 rounded-lg cursor-pointer transition ${isChildChecked ? 'bg-blue-50/30' : 'hover:bg-slate-100'}`}>
-                                                                                    <input 
-                                                                                        type="checkbox"
-                                                                                        checked={isChildChecked}
-                                                                                        onChange={() => handleLocationToggle(child.id)}
-                                                                                        className="rounded text-kai-blue focus:ring-kai-blue border-slate-300 w-3.5 h-3.5 shrink-0 cursor-pointer"
-                                                                                    />
-                                                                                    <span className="text-xs font-semibold text-slate-600">{child.name}</span>
-                                                                                </label>
-                                                                            );
-                                                                        })}
-                                                                    </div>
-                                                                )}
-                                                            </div>
+                                                            <label 
+                                                                key={loc.id} 
+                                                                className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition border ${isChecked ? 'border-kai-blue bg-blue-50' : 'border-transparent hover:bg-slate-50'}`}
+                                                            >
+                                                                <input 
+                                                                    type="checkbox"
+                                                                    checked={isChecked}
+                                                                    onChange={() => handleLocationToggle(loc.id)}
+                                                                    className="rounded text-kai-blue focus:ring-kai-blue border-slate-300 w-4 h-4 shrink-0 cursor-pointer"
+                                                                />
+                                                                <span className="text-sm font-semibold text-slate-700 truncate" title={loc.name}>{loc.name}</span>
+                                                            </label>
                                                         );
                                                     })}
                                                 </div>
