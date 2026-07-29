@@ -152,9 +152,16 @@ export default function Reports({ stats, assetTypes = [], locations = [], assets
                 ...(currentSchema.columns || []).filter(c => c.key !== '_no')
             ];
 
-            const sortedLocIds = Object.keys(grouped).sort((a,b) => grouped[a].name.localeCompare(grouped[b].name));
-            
-            if (sortedLocIds.length === 0) {
+            let targetLocations = locations;
+            if (exportLocations.length > 0) {
+                targetLocations = locations.filter(loc => exportLocations.includes(loc.id));
+            }
+
+            if (!showEmptyLocations) {
+                targetLocations = targetLocations.filter(loc => grouped[loc.id] && grouped[loc.id].data.length > 0);
+            }
+
+            if (targetLocations.length === 0) {
                 return (
                      <div className="text-center py-12 text-slate-400">
                          <i className="fa-solid fa-folder-open text-4xl mb-3 opacity-30"></i>
@@ -164,19 +171,40 @@ export default function Reports({ stats, assetTypes = [], locations = [], assets
             }
 
             return (
-                <div className="space-y-8">
-                    {sortedLocIds.map(locId => (
-                        <EditableAssetTable 
-                            key={locId}
-                            title={`Laporan ${currentTab.name}`} 
-                            icon={currentTab.icon}
-                            locationName={grouped[locId].name}
-                            data={grouped[locId].data} 
-                            columns={columns} 
-                            headerGroups={currentSchema.headerGroups} 
-                            readOnly={true} 
-                        />
-                    ))}
+                <div className="space-y-2">
+                    {targetLocations.sort((a,b) => a.name.localeCompare(b.name)).map(loc => {
+                        const locData = grouped[loc.id] ? grouped[loc.id].data : [];
+                        
+                        if (locData.length === 0) {
+                            return (
+                                <div key={loc.id} className="border border-slate-100 rounded-2xl overflow-hidden shadow-sm mb-5 bg-white">
+                                    <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+                                        <h3 className="text-sm font-extrabold text-kai-blue flex items-center gap-2">
+                                            <i className={`fa-solid ${currentTab.icon} text-kai-orange`}></i>
+                                            Laporan {currentTab.name} di {loc.name}
+                                            <span className="text-[10px] font-bold text-slate-400 ml-1">(0)</span>
+                                        </h3>
+                                    </div>
+                                    <div className="p-8 text-center bg-slate-50 text-slate-400 italic text-sm">
+                                        Belum ada Master Asset {currentTab.name} di lokasi ini.
+                                    </div>
+                                </div>
+                            );
+                        }
+
+                        return (
+                            <EditableAssetTable 
+                                key={loc.id}
+                                title={`Laporan ${currentTab.name}`} 
+                                icon={currentTab.icon}
+                                locationName={loc.name}
+                                data={locData} 
+                                columns={columns} 
+                                headerGroups={currentSchema.headerGroups} 
+                                readOnly={true} 
+                            />
+                        );
+                    })}
                 </div>
             );
         }
