@@ -107,7 +107,9 @@ export default function Reports({ stats, assetTypes = [], locations = [], assets
         const inputs = [
             { name: '_token', value: csrfToken },
             { name: 'categories', value: JSON.stringify(exportCategories) },
-            { name: 'locations', value: JSON.stringify(exportLocations) }
+            { name: 'locations', value: JSON.stringify(exportLocations) },
+            { name: 'format', value: exportFormat },
+            { name: 'show_empty', value: showEmptyLocations }
         ];
 
         inputs.forEach(inputData => {
@@ -226,12 +228,21 @@ export default function Reports({ stats, assetTypes = [], locations = [], assets
                             <div className="border border-slate-100 rounded-xl p-4 bg-slate-50/50">
                                 <div className="flex justify-between items-center mb-3">
                                     <h4 className="font-semibold text-slate-700 text-sm">Filter Kategori Aset</h4>
-                                    <button 
-                                        onClick={() => setExportCategories([])}
-                                        className="text-xs text-kai-blue hover:underline font-semibold"
-                                    >
-                                        Reset (Semua)
-                                    </button>
+                                    <div className="flex items-center gap-2">
+                                        <button 
+                                            onClick={() => setExportCategories(assetTypes.map(t => t.id))}
+                                            className="text-xs text-kai-blue hover:underline font-semibold"
+                                        >
+                                            Pilih Semua
+                                        </button>
+                                        <span className="text-slate-300">|</span>
+                                        <button 
+                                            onClick={() => setExportCategories([])}
+                                            className="text-xs text-rose-500 hover:underline font-semibold"
+                                        >
+                                            Reset
+                                        </button>
+                                    </div>
                                 </div>
                                 <div className="space-y-1 max-h-48 overflow-y-auto custom-scrollbar px-1 py-1">
                                     {assetTypes.map(type => (
@@ -253,12 +264,21 @@ export default function Reports({ stats, assetTypes = [], locations = [], assets
                                 <div className="flex justify-between items-center mb-3">
                                     <h4 className="font-semibold text-slate-700 text-sm">Filter Lokasi</h4>
                                     {auth?.user?.role !== 'Admin Lokasi' && (
-                                        <button 
-                                            onClick={handleClearLocations}
-                                            className="text-xs text-kai-blue hover:underline font-semibold"
-                                        >
-                                            Reset (Semua)
-                                        </button>
+                                        <div className="flex items-center gap-2">
+                                            <button 
+                                                onClick={() => setExportLocations(locations.map(l => l.id))}
+                                                className="text-xs text-kai-blue hover:underline font-semibold"
+                                            >
+                                                Pilih Semua
+                                            </button>
+                                            <span className="text-slate-300">|</span>
+                                            <button 
+                                                onClick={handleClearLocations}
+                                                className="text-xs text-rose-500 hover:underline font-semibold"
+                                            >
+                                                Reset
+                                            </button>
+                                        </div>
                                     )}
                                 </div>
                                 
@@ -322,12 +342,20 @@ export default function Reports({ stats, assetTypes = [], locations = [], assets
                                                 </div>
                                                 
                                                 <div className="flex items-center justify-between mt-6 pt-4 border-t border-slate-100">
-                                                    <button 
-                                                        onClick={handleClearLocations}
-                                                        className="text-sm text-rose-500 hover:text-rose-600 font-bold px-3 py-2 rounded-lg hover:bg-rose-50 transition"
-                                                    >
-                                                        Bersihkan Pilihan
-                                                    </button>
+                                                    <div className="flex items-center gap-2">
+                                                        <button 
+                                                            onClick={() => setExportLocations(locations.map(l => l.id))}
+                                                            className="text-sm text-kai-blue hover:text-blue-700 font-bold px-3 py-2 rounded-lg hover:bg-blue-50 transition"
+                                                        >
+                                                            Pilih Semua
+                                                        </button>
+                                                        <button 
+                                                            onClick={handleClearLocations}
+                                                            className="text-sm text-rose-500 hover:text-rose-600 font-bold px-3 py-2 rounded-lg hover:bg-rose-50 transition"
+                                                        >
+                                                            Bersihkan Pilihan
+                                                        </button>
+                                                    </div>
                                                     <button
                                                         onClick={() => setShowLocDropdown(false)}
                                                         className="bg-kai-blue text-white px-5 py-2 rounded-lg text-sm font-bold shadow-md hover:bg-blue-700 transition"
