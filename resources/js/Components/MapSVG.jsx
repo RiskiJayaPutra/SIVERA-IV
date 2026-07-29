@@ -112,12 +112,19 @@ const UNIT_GROUPS = [
 
 export default function MapSVG({ onClickStation, locations = [] }) {
     const svgRef = React.useRef(null);
+    const [expandedUnits, setExpandedUnits] = React.useState({});
 
     React.useEffect(() => {
         window.__mapClickStation = (stId) => {
             if (onClickStation) onClickStation(stId);
         };
-        return () => { delete window.__mapClickStation; };
+        window.__toggleMapUnit = (stId) => {
+            setExpandedUnits(prev => ({ ...prev, [stId]: !prev[stId] }));
+        };
+        return () => { 
+            delete window.__mapClickStation;
+            delete window.__toggleMapUnit;
+        };
     }, [onClickStation]);
 
     React.useEffect(() => {
@@ -152,30 +159,6 @@ export default function MapSVG({ onClickStation, locations = [] }) {
         // KAI LOGO
         h += `<rect x="${MAP_W - 115}" y="12" width="100" height="34" rx="6" fill="#0D2C54"/>`;
         h += `<text x="${MAP_W - 65}" y="36" text-anchor="middle" font-size="19" font-weight="900" fill="white" font-family="Plus Jakarta Sans,sans-serif" letter-spacing="4">KAI</text>`;
-
-        // LEGEND
-        const lx = 16, liy = 52, liw = 260;
-        const cKeys = Object.keys(NC);
-        const lineTypes = [
-            { color: '#38BDF8', label: 'Jalur FO', dash: '' },
-            { color: '#EF4444', label: 'Jalur FO yg bermasalah', dash: '6,3' },
-            { color: '#111827', label: 'Jalur FO yg belum digunakan IT', dash: '3,3' }
-        ];
-        const liH = 30 + cKeys.length * 18 + lineTypes.length * 17 + 10;
-        h += `<rect x="${lx}" y="${liy}" width="${liw}" height="${liH}" rx="6" fill="#FFF" stroke="#DC2626" stroke-width="1.6"/>`;
-        h += `<text x="${lx + 12}" y="${liy + 19}" font-size="11" font-weight="800" fill="#111827" font-family="Plus Jakarta Sans,sans-serif">Keterangan :</text>`;
-        let cy = liy + 36;
-        cKeys.forEach(k => {
-            h += `<rect x="${lx + 12}" y="${cy - 9}" width="14" height="10" rx="2" fill="${NC[k]}"/>`;
-            h += `<text x="${lx + 32}" y="${cy + 1}" font-size="9" font-weight="600" fill="#334155" font-family="Plus Jakarta Sans,sans-serif">${NC_LABEL[k]}</text>`;
-            cy += 18;
-        });
-        cy += 4;
-        lineTypes.forEach(lt => {
-            h += `<line x1="${lx + 12}" y1="${cy - 4}" x2="${lx + 26}" y2="${cy - 4}" stroke="${lt.color}" stroke-width="2.8" ${lt.dash ? `stroke-dasharray="${lt.dash}"` : ''}/>`;
-            h += `<text x="${lx + 32}" y="${cy}" font-size="9" font-weight="600" fill="#334155" font-family="Plus Jakarta Sans,sans-serif">${lt.label}</text>`;
-            cy += 17;
-        });
 
         // IT SUPPORT ZONE
         const spX = 1069; 
@@ -218,6 +201,8 @@ export default function MapSVG({ onClickStation, locations = [] }) {
         const BOX_GAP = 3;
 
         UNIT_GROUPS.forEach(grp => {
+            if (!expandedUnits[grp.parentId]) return;
+
             const st = ALL_STATIONS.find(s => s.id === grp.parentId);
             if (!st) return;
 
@@ -314,6 +299,19 @@ export default function MapSVG({ onClickStation, locations = [] }) {
                 s += `<text x="${bx}" y="${by + 1}" text-anchor="middle" font-size="8" font-weight="800" fill="white" font-family="Plus Jakarta Sans,sans-serif" pointer-events="none">${ac}</text>`;
             }
 
+            const hasUnits = UNIT_GROUPS.some(g => g.parentId === st.id);
+            if (hasUnits) {
+                const isExp = expandedUnits[st.id];
+                const tx = x - r - 2, ty = y - r - 2;
+                s += `<circle cx="${tx}" cy="${ty}" r="7" fill="${isExp ? '#EF4444' : '#3B82F6'}" stroke="white" stroke-width="1.5" class="click-area" style="pointer-events:all;cursor:pointer" onclick="window.__toggleMapUnit('${st.id}')"/>`;
+                if (isExp) {
+                    s += `<line x1="${tx - 3}" y1="${ty}" x2="${tx + 3}" y2="${ty}" stroke="white" stroke-width="2" stroke-linecap="round" pointer-events="none"/>`;
+                } else {
+                    s += `<line x1="${tx - 3}" y1="${ty}" x2="${tx + 3}" y2="${ty}" stroke="white" stroke-width="2" stroke-linecap="round" pointer-events="none"/>`;
+                    s += `<line x1="${tx}" y1="${ty - 3}" x2="${tx}" y2="${ty + 3}" stroke="white" stroke-width="2" stroke-linecap="round" pointer-events="none"/>`;
+                }
+            }
+
             return s;
         };
 
@@ -331,7 +329,7 @@ export default function MapSVG({ onClickStation, locations = [] }) {
 
         svgRef.current.innerHTML = h;
 
-    }, [locations]);
+    }, [locations, expandedUnits]);
 
     return (
         <svg ref={svgRef} id="mapSVG" xmlns="http://www.w3.org/2000/svg"
