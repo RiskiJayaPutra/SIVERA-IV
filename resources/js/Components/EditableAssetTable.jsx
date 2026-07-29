@@ -314,7 +314,7 @@ export default function EditableAssetTable({
             <div className="p-4 border-b border-slate-100 flex items-center justify-between">
                 <h3 className="text-sm font-extrabold text-kai-blue flex items-center gap-2">
                     <i className={`fa-solid ${icon} text-kai-orange`}></i>
-                    {title} di {locationName}
+                    {title} {locationName ? `di ${locationName}` : ''}
                     <span className="text-[10px] font-bold text-slate-400 ml-1">({data.length})</span>
                 </h3>
                 <div className="flex items-center gap-2">
