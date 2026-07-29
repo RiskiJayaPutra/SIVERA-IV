@@ -27,7 +27,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('asset-types', AssetTypeController::class)->middleware('superadmin');
     
     // Locations
-    Route::resource('locations', LocationController::class);
+    Route::resource('locations', LocationController::class)->middleware('superadmin');
     
     // Batch save generic dynamic assets
     Route::post('locations/{id}/assets/batch', [AssetController::class, 'batchSave'])->name('assets.batch');

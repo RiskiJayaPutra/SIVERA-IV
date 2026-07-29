@@ -64,13 +64,12 @@ export default function AuthenticatedLayout({ children, headerTitle, headerSubti
                         <i className={`fa-solid fa-server text-base w-5 text-center ${navActive('assets.*') ? 'text-kai-orange' : 'text-blue-200/50'}`}></i>
                         <span>Data Aset</span>
                     </Link>
-                    <Link href={route('locations.index')} className={`nav-link flex items-center px-4 py-3 rounded-lg text-sm transition-all duration-200 gap-3 border-l-4 ${navActive('locations.*') ? 'bg-white/10 text-white font-bold border-kai-orange' : 'font-medium text-blue-100/70 border-transparent hover:bg-white/5 hover:text-white'}`}>
-                        <i className={`fa-solid fa-map-location-dot text-base w-5 text-center ${navActive('locations.*') ? 'text-kai-orange' : 'text-blue-200/50'}`}></i>
-                        <span>Master Lokasi</span>
-                    </Link>
-
                     {user.role === 'superadmin' && (
                         <>
+                            <Link href={route('locations.index')} className={`nav-link flex items-center px-4 py-3 rounded-lg text-sm transition-all duration-200 gap-3 border-l-4 ${navActive('locations.*') ? 'bg-white/10 text-white font-bold border-kai-orange' : 'font-medium text-blue-100/70 border-transparent hover:bg-white/5 hover:text-white'}`}>
+                                <i className={`fa-solid fa-map-location-dot text-base w-5 text-center ${navActive('locations.*') ? 'text-kai-orange' : 'text-blue-200/50'}`}></i>
+                                <span>Master Lokasi</span>
+                            </Link>
                             <Link href={route('users.index')} className={`nav-link flex items-center px-4 py-3 rounded-lg text-sm transition-all duration-200 gap-3 border-l-4 ${navActive('users.*') ? 'bg-white/10 text-white font-bold border-kai-orange' : 'font-medium text-blue-100/70 border-transparent hover:bg-white/5 hover:text-white'}`}>
                                 <i className={`fa-solid fa-users-gear text-base w-5 text-center ${navActive('users.*') ? 'text-kai-orange' : 'text-blue-200/50'}`}></i>
                                 <span>Manajemen User</span>
