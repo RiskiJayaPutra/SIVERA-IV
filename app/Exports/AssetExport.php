@@ -7,17 +7,25 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\WithTitle;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class AssetExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize, WithStyles
+class AssetExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize, WithStyles, WithTitle
 {
     protected $assets;
     protected $schemaCols;
+    protected $title;
 
-    public function __construct($assets, $schemaCols)
+    public function __construct($assets, $schemaCols, $title = 'Data Aset')
     {
         $this->assets = $assets;
         $this->schemaCols = $schemaCols;
+        $this->title = $title;
+    }
+
+    public function title(): string
+    {
+        return $this->title;
     }
 
     public function collection()

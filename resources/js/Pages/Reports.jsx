@@ -3,10 +3,44 @@ import EditableAssetTable from '@/Components/EditableAssetTable';
 import { Head, router } from '@inertiajs/react';
 import React from 'react';
 import Swal from 'sweetalert2';
+import axios from 'axios';
 
-export default function Reports({ stats, assetTypes = [], assets = {}, currentType, currentSchema }) {
+export default function Reports({ stats, assetTypes = [], locations = [], assets = {}, currentType, currentSchema, auth }) {
     
     const currentTab = assetTypes.find(t => t.slug === currentType);
+    
+    // Advanced Export States
+    const [exportCategories, setExportCategories] = React.useState([]);
+    const [exportLocations, setExportLocations] = React.useState([]);
+    const [previewData, setPreviewData] = React.useState(null);
+    const [isPreviewLoading, setIsPreviewLoading] = React.useState(false);
+
+    React.useEffect(() => {
+        // Fetch Preview Data
+        setIsPreviewLoading(true);
+        axios.post(route('reports.preview'), {
+            categories: exportCategories,
+            locations: exportLocations
+        }).then(res => {
+            setPreviewData(res.data);
+            setIsPreviewLoading(false);
+        }).catch(err => {
+            console.error(err);
+            setIsPreviewLoading(false);
+        });
+    }, [exportCategories, exportLocations]);
+
+    const handleCategoryToggle = (id) => {
+        setExportCategories(prev => 
+            prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]
+        );
+    };
+
+    const handleLocationToggle = (id) => {
+        setExportLocations(prev => 
+            prev.includes(id) ? prev.filter(l => l !== id) : [...prev, id]
+        );
+    };
 
     const handleTabChange = (typeSlug) => {
         router.get(route('reports.index'), { asset_type: typeSlug }, { preserveScroll: true });
@@ -17,7 +51,7 @@ export default function Reports({ stats, assetTypes = [], assets = {}, currentTy
         
         Swal.fire({
             title: 'Menyiapkan Export',
-            text: `Sedang menyusun data Excel untuk ${currentTab?.name}...`,
+            text: `Sedang menyusun data Excel terpadu...`,
             icon: 'info',
             timer: 1500,
             showConfirmButton: false
@@ -28,17 +62,20 @@ export default function Reports({ stats, assetTypes = [], assets = {}, currentTy
         form.action = route('reports.export');
 
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        const tokenInput = document.createElement('input');
-        tokenInput.type = 'hidden';
-        tokenInput.name = '_token';
-        tokenInput.value = csrfToken;
-        form.appendChild(tokenInput);
+        
+        const inputs = [
+            { name: '_token', value: csrfToken },
+            { name: 'categories', value: JSON.stringify(exportCategories) },
+            { name: 'locations', value: JSON.stringify(exportLocations) }
+        ];
 
-        const typeInput = document.createElement('input');
-        typeInput.type = 'hidden';
-        typeInput.name = 'asset_type';
-        typeInput.value = currentType;
-        form.appendChild(typeInput);
+        inputs.forEach(inputData => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = inputData.name;
+            input.value = inputData.value;
+            form.appendChild(input);
+        });
 
         document.body.appendChild(form);
         form.submit();
@@ -134,6 +171,120 @@ export default function Reports({ stats, assetTypes = [], assets = {}, currentTy
                 </div>
             </div>
 
+            {/* Advanced Export Section */}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 mb-6 fade-in">
+                <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <i className="fa-solid fa-file-export text-kai-orange"></i> Advanced Export Laporan
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* Categories Filter */}
+                    <div className="border border-slate-100 rounded-xl p-4 bg-slate-50/50">
+                        <div className="flex justify-between items-center mb-3">
+                            <h4 className="font-semibold text-slate-700 text-sm">Filter Kategori Aset</h4>
+                            <button 
+                                onClick={() => setExportCategories([])}
+                                className="text-xs text-kai-blue hover:underline font-semibold"
+                            >
+                                Reset (Semua)
+                            </button>
+                        </div>
+                        <div className="space-y-2 max-h-48 overflow-y-auto custom-scrollbar pr-2">
+                            {assetTypes.map(type => (
+                                <label key={type.id} className="flex items-center gap-2 cursor-pointer group">
+                                    <input 
+                                        type="checkbox" 
+                                        checked={exportCategories.includes(type.id)}
+                                        onChange={() => handleCategoryToggle(type.id)}
+                                        className="rounded text-kai-blue focus:ring-kai-blue border-slate-300 w-4 h-4"
+                                    />
+                                    <span className="text-sm text-slate-600 group-hover:text-kai-blue transition">{type.name}</span>
+                                </label>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Locations Filter */}
+                    <div className="border border-slate-100 rounded-xl p-4 bg-slate-50/50">
+                        <div className="flex justify-between items-center mb-3">
+                            <h4 className="font-semibold text-slate-700 text-sm">Filter Lokasi</h4>
+                            {auth?.user?.role !== 'Admin Lokasi' && (
+                                <button 
+                                    onClick={() => setExportLocations([])}
+                                    className="text-xs text-kai-blue hover:underline font-semibold"
+                                >
+                                    Reset (Semua)
+                                </button>
+                            )}
+                        </div>
+                        <div className="space-y-2 max-h-48 overflow-y-auto custom-scrollbar pr-2">
+                            {auth?.user?.role === 'Admin Lokasi' ? (
+                                <div className="text-xs font-semibold text-slate-500 bg-white p-3 rounded-lg border border-slate-200">
+                                    Otorisasi Lokasi: Terbatas pada wilayah Anda.
+                                </div>
+                            ) : (
+                                locations.map(loc => (
+                                    <label key={loc.id} className="flex items-center gap-2 cursor-pointer group">
+                                        <input 
+                                            type="checkbox" 
+                                            checked={exportLocations.includes(loc.id)}
+                                            onChange={() => handleLocationToggle(loc.id)}
+                                            className="rounded text-kai-blue focus:ring-kai-blue border-slate-300 w-4 h-4"
+                                        />
+                                        <span className="text-sm text-slate-600 group-hover:text-kai-blue transition truncate" title={loc.name}>{loc.name}</span>
+                                    </label>
+                                ))
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Preview & Action */}
+                    <div className="border border-slate-100 rounded-xl p-4 bg-slate-800 text-white flex flex-col relative overflow-hidden">
+                        <div className="absolute -right-4 -top-4 w-32 h-32 bg-white/5 rounded-full"></div>
+                        <h4 className="font-semibold text-slate-200 text-sm mb-4 relative z-10">Preview Laporan</h4>
+                        
+                        {isPreviewLoading ? (
+                            <div className="flex-1 flex items-center justify-center relative z-10">
+                                <i className="fa-solid fa-spinner fa-spin text-2xl text-kai-orange"></i>
+                            </div>
+                        ) : (
+                            <div className="flex-1 relative z-10">
+                                <div className="mb-4">
+                                    <p className="text-xs text-slate-400 mb-1">Total Data Ekspor</p>
+                                    <p className="text-3xl font-black text-white">{previewData?.total || 0} <span className="text-sm font-normal text-slate-300">Aset</span></p>
+                                </div>
+                                
+                                {previewData?.categories?.length > 0 && (
+                                    <div className="flex flex-wrap gap-2 mb-4">
+                                        {previewData.categories.map(c => (
+                                            <span key={c.name} className="px-2 py-1 rounded bg-white/10 text-xs font-semibold">
+                                                {c.name}: {c.count}
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        <div className="mt-auto relative z-10">
+                            {auth?.user?.role === 'Viewer' ? (
+                                <button disabled className="w-full bg-slate-700 text-slate-400 px-5 py-3 rounded-lg text-sm font-bold cursor-not-allowed">
+                                    <i className="fa-solid fa-lock mr-2"></i> Tidak Ada Akses Ekspor
+                                </button>
+                            ) : (
+                                <button 
+                                    onClick={handleExport}
+                                    disabled={!previewData || previewData.total === 0 || isPreviewLoading}
+                                    className="w-full bg-kai-orange text-white px-5 py-3 rounded-lg text-sm font-bold shadow-md hover:bg-orange-600 transition disabled:opacity-50 flex items-center justify-center gap-2"
+                                >
+                                    <i className="fa-solid fa-file-excel"></i> Download Excel Terpadu
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 fade-in overflow-hidden">
                 <div className="border-b border-slate-100 bg-slate-50/50 p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex flex-wrap bg-white rounded-xl shadow-sm border border-slate-100 p-1">
@@ -152,15 +303,6 @@ export default function Reports({ stats, assetTypes = [], assets = {}, currentTy
                             </button>
                         ))}
                     </div>
-
-                    {currentTab && (
-                        <button 
-                            onClick={handleExport}
-                            className="bg-kai-orange text-white px-5 py-2 rounded-xl text-sm font-bold shadow-sm hover:bg-orange-600 transition flex items-center justify-center gap-2 shrink-0"
-                        >
-                            <i className="fa-solid fa-file-excel"></i> Export Excel {currentTab.name}
-                        </button>
-                    )}
                 </div>
 
                 <div className="p-5 overflow-x-auto">

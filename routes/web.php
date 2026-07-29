@@ -38,6 +38,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     
     // Reports
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::post('/reports/preview', [ReportController::class, 'previewExport'])->name('reports.preview');
     Route::post('/reports/export', [ReportController::class, 'export'])->name('reports.export');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

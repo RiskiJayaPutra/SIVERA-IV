@@ -69,6 +69,7 @@ class ReportController extends Controller
         return Inertia::render('Reports', [
             'stats' => $stats,
             'assetTypes' => $assetTypes,
+            'locations' => Location::select('id', 'name')->get(),
             'assets' => $assets,
             'currentType' => $currentType ? $currentType->slug : null,
             'currentSchema' => $currentType ? $currentType->schema : null,
@@ -77,17 +78,80 @@ class ReportController extends Controller
 
     public function export(Request $request)
     {
-        $assetTypeSlug = $request->input('asset_type');
-        $currentType = AssetType::where('slug', $assetTypeSlug)->firstOrFail();
+        $categories = $request->input('categories', []);
+        $locations = $request->input('locations', []);
 
-        $assets = Asset::with('location')
-            ->where('asset_type_id', $currentType->id)
-            ->get();
+        if (is_string($categories)) $categories = json_decode($categories, true) ?? [];
+        if (is_string($locations)) $locations = json_decode($locations, true) ?? [];
 
-        $schemaCols = $currentType->schema['columns'] ?? [];
+        $user = auth()->user();
+        if ($user->role === 'Admin Lokasi') {
+            $locations = [$user->location_id];
+        } else if ($user->role === 'Viewer') {
+            abort(403, 'Anda tidak memiliki hak akses untuk mengekspor data.');
+        }
 
-        $fileName = 'Laporan_' . $currentType->name . '_' . date('Ymd_His') . '.xlsx';
+        if (empty($categories)) {
+            $categories = AssetType::pluck('id')->toArray();
+        }
 
-        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\AssetExport($assets, $schemaCols), $fileName);
+        $fileName = 'Laporan_Aset_SIVERA_' . date('Ymd_His') . '.xlsx';
+
+        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\MultiSheetAssetExport($categories, $locations), $fileName);
+    }
+
+    public function previewExport(Request $request)
+    {
+        $categories = $request->input('categories', []);
+        $locations = $request->input('locations', []);
+
+        if (is_string($categories)) $categories = json_decode($categories, true) ?? [];
+        if (is_string($locations)) $locations = json_decode($locations, true) ?? [];
+
+        $user = auth()->user();
+        if ($user->role === 'Admin Lokasi') {
+            $locations = [$user->location_id];
+        }
+
+        $query = Asset::query();
+        
+        if (!empty($categories)) {
+            $query->whereIn('asset_type_id', $categories);
+        }
+        if (!empty($locations)) {
+            $query->whereIn('location_id', $locations);
+        }
+
+        $totalData = (clone $query)->count();
+        
+        $byCategory = (clone $query)
+            ->selectRaw('asset_type_id, count(*) as count')
+            ->groupBy('asset_type_id')
+            ->with('assetType:id,name')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'name' => $item->assetType ? $item->assetType->name : 'Unknown',
+                    'count' => $item->count
+                ];
+            });
+
+        $byLocation = (clone $query)
+            ->selectRaw('location_id, count(*) as count')
+            ->groupBy('location_id')
+            ->with('location:id,name')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'name' => $item->location ? $item->location->name : 'Unknown',
+                    'count' => $item->count
+                ];
+            });
+
+        return response()->json([
+            'total' => $totalData,
+            'categories' => $byCategory,
+            'locations' => $byLocation
+        ]);
     }
 }
