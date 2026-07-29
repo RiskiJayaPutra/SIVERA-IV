@@ -206,9 +206,16 @@ export default function Locations({ locations = [] }) {
                                     <select value={data.parent_id} onChange={e => setData('parent_id', e.target.value)}
                                         className="w-full px-5 py-4 text-xl border border-slate-200 rounded-lg focus:ring-2 focus:ring-kai-orange focus:border-kai-orange">
                                         <option value="">Pilih Lokasi Induk...</option>
-                                        {(locations.data || []).filter(l => l.type === 'stasiun' || l.type === 'resort').map(st => (
-                                            <option key={st.id} value={st.id}>{st.name}</option>
-                                        ))}
+                                        <optgroup label="Daftar Stasiun">
+                                            {(locations.data || []).filter(l => l.type === 'stasiun').map(st => (
+                                                <option key={st.id} value={st.id}>{st.name}</option>
+                                            ))}
+                                        </optgroup>
+                                        <optgroup label="Daftar Resort">
+                                            {(locations.data || []).filter(l => l.type === 'resort').map(st => (
+                                                <option key={st.id} value={st.id}>{st.name}</option>
+                                            ))}
+                                        </optgroup>
                                     </select>
                                     {errors.parent_id && <p className="text-red-500 text-sm mt-2">{errors.parent_id}</p>}
                                 </div>
