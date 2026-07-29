@@ -60,10 +60,14 @@ class ReportController extends Controller
         // Fetch Data for Table
         $assets = null;
         if ($currentType) {
-            $assets = Asset::with('location')
-                ->where('asset_type_id', $currentType->id)
-                ->paginate(15)
-                ->withQueryString();
+            $query = Asset::with('location')->where('asset_type_id', $currentType->id);
+            
+            if ($request->has('locations') && !empty($request->query('locations'))) {
+                $filterLocs = explode(',', $request->query('locations'));
+                $query->whereIn('location_id', $filterLocs);
+            }
+
+            $assets = $query->paginate(15)->withQueryString();
         }
 
         return Inertia::render('Reports', [

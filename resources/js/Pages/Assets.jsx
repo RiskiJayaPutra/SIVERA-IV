@@ -232,7 +232,7 @@ export default function Assets({ assetTypes = [], assets = [], totalAssets = 0, 
                                                             setSelectedLocs(selectedLocs.filter(id => id !== loc.id.toString()));
                                                         }
                                                     }}
-                                                    className="rounded text-kai-blue focus:ring-kai-blue border-slate-300 w-4 h-4 cursor-pointer"
+                                                    className="rounded text-kai-blue focus:ring-kai-blue border-slate-300 w-4 h-4 shrink-0 cursor-pointer"
                                                 />
                                                 <span className="text-xs font-semibold text-slate-700 truncate" title={loc.name}>{loc.name}</span>
                                             </label>

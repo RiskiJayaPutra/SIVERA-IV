@@ -1,21 +1,31 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import EditableAssetTable from '@/Components/EditableAssetTable';
 import { Head, router } from '@inertiajs/react';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
 import axios from 'axios';
+import Modal from '@/Components/Modal';
 
 export default function Reports({ stats, assetTypes = [], locations = [], assets = {}, currentType, currentSchema, auth }) {
     
     const currentTab = assetTypes.find(t => t.slug === currentType);
     
     // Advanced Export States
-    const [exportCategories, setExportCategories] = React.useState([]);
-    const [exportLocations, setExportLocations] = React.useState([]);
-    const [previewData, setPreviewData] = React.useState(null);
-    const [isPreviewLoading, setIsPreviewLoading] = React.useState(false);
+    const [exportCategories, setExportCategories] = useState([]);
+    const [exportLocations, setExportLocations] = useState(() => {
+        // Parse locations from URL if any
+        const params = new URLSearchParams(window.location.search);
+        const locs = params.get('locations');
+        return locs ? locs.split(',').map(Number) : [];
+    });
+    const [previewData, setPreviewData] = useState(null);
+    const [isPreviewLoading, setIsPreviewLoading] = useState(false);
+    
+    // Modal states
+    const [showLocDropdown, setShowLocDropdown] = useState(false);
+    const [modalSearch, setModalSearch] = useState('');
 
-    React.useEffect(() => {
+    useEffect(() => {
         // Fetch Preview Data
         setIsPreviewLoading(true);
         axios.post(route('reports.preview'), {
@@ -37,9 +47,35 @@ export default function Reports({ stats, assetTypes = [], locations = [], assets
     };
 
     const handleLocationToggle = (id) => {
-        setExportLocations(prev => 
-            prev.includes(id) ? prev.filter(l => l !== id) : [...prev, id]
-        );
+        const newLocs = exportLocations.includes(id) 
+            ? exportLocations.filter(l => l !== id) 
+            : [...exportLocations, id];
+        
+        setExportLocations(newLocs);
+        
+        // Dynamically update the table below
+        router.get(route('reports.index'), {
+            asset_type: currentType,
+            locations: newLocs.join(',')
+        }, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
+            only: ['assets']
+        });
+    };
+
+    const handleClearLocations = () => {
+        setExportLocations([]);
+        router.get(route('reports.index'), {
+            asset_type: currentType,
+            locations: ''
+        }, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
+            only: ['assets']
+        });
     };
 
     const handleTabChange = (typeSlug) => {
@@ -196,7 +232,7 @@ export default function Reports({ stats, assetTypes = [], locations = [], assets
                                         type="checkbox" 
                                         checked={exportCategories.includes(type.id)}
                                         onChange={() => handleCategoryToggle(type.id)}
-                                        className="rounded text-kai-blue focus:ring-kai-blue border-slate-300 w-4 h-4"
+                                        className="rounded text-kai-blue focus:ring-kai-blue border-slate-300 w-4 h-4 shrink-0"
                                     />
                                     <span className="text-sm text-slate-600 group-hover:text-kai-blue transition">{type.name}</span>
                                 </label>
@@ -210,32 +246,91 @@ export default function Reports({ stats, assetTypes = [], locations = [], assets
                             <h4 className="font-semibold text-slate-700 text-sm">Filter Lokasi</h4>
                             {auth?.user?.role !== 'Admin Lokasi' && (
                                 <button 
-                                    onClick={() => setExportLocations([])}
+                                    onClick={handleClearLocations}
                                     className="text-xs text-kai-blue hover:underline font-semibold"
                                 >
                                     Reset (Semua)
                                 </button>
                             )}
                         </div>
-                        <div className="space-y-2 max-h-48 overflow-y-auto custom-scrollbar pr-2">
-                            {auth?.user?.role === 'Admin Lokasi' ? (
-                                <div className="text-xs font-semibold text-slate-500 bg-white p-3 rounded-lg border border-slate-200">
-                                    Otorisasi Lokasi: Terbatas pada wilayah Anda.
-                                </div>
-                            ) : (
-                                locations.map(loc => (
-                                    <label key={loc.id} className="flex items-center gap-2 cursor-pointer group">
-                                        <input 
-                                            type="checkbox" 
-                                            checked={exportLocations.includes(loc.id)}
-                                            onChange={() => handleLocationToggle(loc.id)}
-                                            className="rounded text-kai-blue focus:ring-kai-blue border-slate-300 w-4 h-4"
-                                        />
-                                        <span className="text-sm text-slate-600 group-hover:text-kai-blue transition truncate" title={loc.name}>{loc.name}</span>
-                                    </label>
-                                ))
-                            )}
-                        </div>
+                        
+                        {auth?.user?.role === 'Admin Lokasi' ? (
+                            <div className="text-xs font-semibold text-slate-500 bg-white p-3 rounded-lg border border-slate-200">
+                                Otorisasi Lokasi: Terbatas pada wilayah Anda.
+                            </div>
+                        ) : (
+                            <>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowLocDropdown(true)}
+                                    className="w-full bg-white border border-slate-200 rounded-lg text-sm py-2 px-3 hover:border-kai-blue focus:ring-2 focus:ring-kai-blue text-left flex items-center justify-between transition"
+                                >
+                                    <span className="text-slate-600 truncate">
+                                        {exportLocations.length === 0 
+                                            ? 'Pilih Wilayah (Semua)' 
+                                            : `${exportLocations.length} Wilayah Dipilih`}
+                                    </span>
+                                    <i className="fa-solid fa-chevron-down text-slate-400 text-xs"></i>
+                                </button>
+                                
+                                <Modal show={showLocDropdown} onClose={() => setShowLocDropdown(false)} maxWidth="2xl">
+                                    <div className="p-6">
+                                        <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                                            <h2 className="text-lg font-bold text-slate-800">Pilih Wilayah (Lokasi)</h2>
+                                            <button onClick={() => setShowLocDropdown(false)} className="text-slate-400 hover:text-slate-600 transition">
+                                                <i className="fa-solid fa-xmark text-xl"></i>
+                                            </button>
+                                        </div>
+                                        
+                                        <div className="mb-4 relative">
+                                            <i className="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                                            <input 
+                                                type="text" 
+                                                placeholder="Cari wilayah..." 
+                                                value={modalSearch}
+                                                onChange={(e) => setModalSearch(e.target.value)}
+                                                className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-kai-blue transition"
+                                            />
+                                        </div>
+                                        
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 max-h-[50vh] overflow-y-auto custom-scrollbar pr-2">
+                                            {locations.filter(loc => loc.name.toLowerCase().includes(modalSearch.toLowerCase())).map(loc => {
+                                                const isChecked = exportLocations.includes(loc.id);
+                                                return (
+                                                    <label 
+                                                        key={loc.id} 
+                                                        className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition border ${isChecked ? 'border-kai-blue bg-blue-50' : 'border-transparent hover:bg-slate-50'}`}
+                                                    >
+                                                        <input 
+                                                            type="checkbox"
+                                                            checked={isChecked}
+                                                            onChange={() => handleLocationToggle(loc.id)}
+                                                            className="rounded text-kai-blue focus:ring-kai-blue border-slate-300 w-4 h-4 shrink-0 cursor-pointer"
+                                                        />
+                                                        <span className="text-sm font-semibold text-slate-700 truncate" title={loc.name}>{loc.name}</span>
+                                                    </label>
+                                                );
+                                            })}
+                                        </div>
+                                        
+                                        <div className="flex items-center justify-between mt-6 pt-4 border-t border-slate-100">
+                                            <button 
+                                                onClick={handleClearLocations}
+                                                className="text-sm text-rose-500 hover:text-rose-600 font-bold px-3 py-2 rounded-lg hover:bg-rose-50 transition"
+                                            >
+                                                Bersihkan Pilihan
+                                            </button>
+                                            <button
+                                                onClick={() => setShowLocDropdown(false)}
+                                                className="bg-kai-blue text-white px-5 py-2 rounded-lg text-sm font-bold shadow-md hover:bg-blue-700 transition"
+                                            >
+                                                Terapkan
+                                            </button>
+                                        </div>
+                                    </div>
+                                </Modal>
+                            </>
+                        )}
                     </div>
 
                     {/* Preview & Action */}
