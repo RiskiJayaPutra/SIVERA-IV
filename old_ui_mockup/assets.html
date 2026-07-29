@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Data Aset - SIVERA IV | Sistem Informasi Divre IV Tanjung Karang</title>
+    <meta name="description" content="Manajemen Data Aset Jaringan IT PT KAI Divre IV Tanjung Karang" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/style.css" />
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        kai: {
+                            blue: '#0D2C54', blueLight: '#1B497E', orange: '#EF7D00',
+                            orangeHover: '#D66F00', red: '#DC2626', green: '#16A34A', yellow: '#CA8A04'
+                        }
+                    },
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] }
+                }
+            }
+        };
+    </script>
+
+    <style>
+        /* ===== SIDEBAR - SAMA PERSIS DENGAN DASHBOARD ===== */
+        .sidebar {
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #FFFFFF;
+        }
+        .sidebar-closed { transform: translateX(-100%); }
+        .sidebar-open { transform: translateX(0); }
+        @media (min-width: 768px) { .sidebar { transform: translateX(0) !important; } }
+
+        .nav-active {
+            background: #F1F5F9;
+            color: #0D2C54;
+            border-right: 3px solid #EF7D00;
+            font-weight: 700;
+        }
+
+        .nav-link {
+            transition: all 0.15s ease;
+        }
+        .nav-link:hover {
+            background: #F8FAFC;
+            color: #0D2C54;
+        }
+
+        /* ===== SIDEBAR HEADER - SAMA PERSIS DENGAN DASHBOARD ===== */
+        .sidebar-header {
+            background: #FFFFFF;
+            border-bottom: 1px solid #E2E8F0;
+        }
+        .sidebar-header .text-white {
+            color: #0D2C54 !important;
+        }
+        .sidebar-header .text-blue-200 {
+            color: #64748B !important;
+        }
+
+        /* ===== STATUS BADGES - SAMA PERSIS DENGAN DASHBOARD ===== */
+        .status-badge { padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; display: inline-block; letter-spacing: 0.05em; }
+        .status-baik { background: #DCFCE7; color: #166534; border: 1px solid #BBF7D0; }
+        .status-perawatan { background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; }
+        .status-rusak { background: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; }
+
+        /* ===== TABLE ===== */
+        .data-table th { padding: 10px 14px; text-align: left; background: #F8FAFC; font-size: 10px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1.5px solid #E2E8F0; }
+        .data-table td { padding: 11px 14px; font-size: 12.5px; border-bottom: 1px solid #F1F5F9; color: #374151; vertical-align: middle; }
+        .data-table tr:last-child td { border-bottom: none; }
+        .data-table tr:hover td { background: #F8FAFC; }
+        .data-table tr { transition: background 0.12s ease; }
+
+        /* ===== MODAL - SAMA PERSIS DENGAN DASHBOARD ===== */
+        .modal-overlay { background: rgba(15, 23, 42, 0.55); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+        .modal-box { animation: modalIn 0.25s ease; }
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.96) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        /* ===== SIDEBAR BACKDROP - SAMA PERSIS DENGAN DASHBOARD ===== */
+        #sidebarBackdrop { display: none; position: fixed; inset: 0; z-index: 35; background: rgba(0, 0, 0, 0.4); }
+        @media (max-width: 767px) { #sidebarBackdrop.show { display: block; } }
+
+        /* ===== SCROLLBAR ===== */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: #F1F5F9; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+
+        /* ===== MOBILE CARDS ===== */
+        .asset-mobile-card { display: none; }
+        @media (max-width: 640px) {
+            .table-wrapper { display: none; }
+            .asset-mobile-card { display: block; }
+        }
+
+        /* ===== FORM INPUT ===== */
+        .form-input {
+            width: 100%; padding: 9px 12px; border-radius: 10px;
+            border: 1.5px solid #E2E8F0; background: #FAFBFD;
+            font-size: 12px; color: #1E293B; outline: none;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+        .form-input:focus { border-color: #EF7D00; box-shadow: 0 0 0 3px rgba(239, 125, 0, 0.08); }
+        .form-label { display: block; font-size: 10px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px; }
+
+        /* ===== ASSET FILTER GRID ===== */
+        .asset-filter-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.65fr) repeat(3, minmax(140px, 1fr));
+            gap: 10px;
+            align-items: center;
+        }
+        .asset-filter-grid .form-input { height: 42px; }
+        .asset-filter-search .search-icon { pointer-events: none; }
+        @media (max-width: 1023px) {
+            .asset-filter-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .asset-filter-search { grid-column: 1 / -1; }
+        }
+        @media (max-width: 640px) {
+            .asset-filter-grid { grid-template-columns: 1fr; }
+            .asset-filter-search { grid-column: auto; }
+        }
+
+        /* ===== FADE IN - SAMA PERSIS DENGAN DASHBOARD ===== */
+        @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeSlideIn 0.3s ease both; }
+
+        /* ===== TOP BAR USER AVATAR - SAMA PERSIS DENGAN DASHBOARD ===== */
+        #topUserAvatar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #0D2C54;
+            color: white;
+            font-size: 12px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        #topUserAvatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen bg-slate-50 font-sans">
+
+    <!-- ===== SIDEBAR BACKDROP ===== -->
+    <div id="sidebarBackdrop" onclick="closeSidebar()"></div>
+
+    <div class="min-h-screen flex">
+        <!-- ===== SIDEBAR - SAMA PERSIS DENGAN DASHBOARD ===== -->
+        <aside id="sidebar"
+            class="sidebar sidebar-open fixed md:relative top-0 left-0 h-full md:h-auto w-64 bg-white border-r border-slate-200 flex flex-col z-40 shadow-xl md:shadow-none flex-shrink-0">
+
+            <div class="sidebar-header p-4 border-b border-slate-200 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <img src="logo.png" alt="Logo KAI" class="h-12 w-auto object-contain">
+                    <div>
+                        <span class="text-sm font-extrabold text-kai-blue">SIVERA IV</span>
+                        <span class="text-[9px] text-slate-400 block leading-none">Divre IV Tanjung Karang</span>
+                    </div>
+                </div>
+                <button onclick="closeSidebar()" class="md:hidden text-slate-400 hover:text-slate-600 transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <nav class="flex-1 p-3 space-y-0.5 overflow-y-auto mt-2">
+                <a href="dashboard.html" class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-800 transition gap-3">
+                    <i class="fa-solid fa-gauge text-base w-5 text-center text-slate-400"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="assets.html" class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-medium nav-active transition gap-3">
+                    <i class="fa-solid fa-server text-base w-5 text-center text-kai-orange"></i>
+                    <span>Data Aset</span>
+                </a>
+                <a href="locations.html" class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-800 transition gap-3">
+                    <i class="fa-solid fa-map-location-dot text-base w-5 text-center text-slate-400"></i>
+                    <span>Master Lokasi</span>
+                </a>
+                <a href="categories.html" class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-800 transition gap-3">
+                    <i class="fa-solid fa-tags text-base w-5 text-center text-slate-400"></i>
+                    <span>Kategori Aset</span>
+                </a>
+                <a href="users.html" class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-800 transition gap-3">
+                    <i class="fa-solid fa-users-gear text-base w-5 text-center text-slate-400"></i>
+                    <span>Manajemen User</span>
+                </a>
+                <a href="reports.html" class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-800 transition gap-3">
+                    <i class="fa-solid fa-file-invoice text-base w-5 text-center text-slate-400"></i>
+                    <span>Laporan</span>
+                </a>
+            </nav>
+
+        </aside>
+
+        <!-- ===== MAIN CONTENT ===== -->
+        <div class="flex-1 min-w-0 flex flex-col">
+
+            <!-- ===== TOP BAR - SAMA PERSIS DENGAN DASHBOARD ===== -->
+            <header class="bg-white border-b border-slate-200 py-3 px-4 md:px-6 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+                <div class="flex items-center gap-3">
+                    <button onclick="openSidebar()" class="md:hidden text-slate-500 hover:text-slate-700 transition p-1.5 rounded-lg hover:bg-slate-100">
+                        <i class="fa-solid fa-bars text-lg"></i>
+                    </button>
+                    <div>
+                        <h1 class="text-sm font-extrabold text-kai-blue leading-tight">Manajemen Aset</h1>
+                        <p class="text-[10px] text-slate-400 hidden sm:block" id="assetCount">0 aset terdaftar</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <span class="text-xs px-2.5 py-1 rounded-full font-bold" id="roleBadge">Superadmin</span>
+                    <div class="relative">
+                        <button onclick="toggleUserMenu()" class="flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-slate-100 text-sm font-bold text-kai-blue">
+                            <span id="topUserAvatar">SA</span>
+                            <i class="fa-solid fa-chevron-down text-xs"></i>
+                        </button>
+                        <div id="userMenu" class="hidden absolute right-0 mt-2 w-44 bg-white rounded-xl shadow-xl border border-slate-100 p-1.5 text-sm">
+                            <button onclick="openProfileModal()" class="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-50 flex items-center gap-2">
+                                <i class="fa-solid fa-user-pen w-5 text-kai-orange"></i> Profil pengguna
+                            </button>
+                            <button onclick="handleLogout()" class="w-full text-left px-3 py-2 rounded-lg hover:bg-rose-50 text-rose-600 flex items-center gap-2">
+                                <i class="fa-solid fa-right-from-bracket w-5"></i> Logout
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- ===== PAGE CONTENT - SAMA PERSIS DENGAN DASHBOARD ===== -->
+            <main class="flex-1 p-4 md:p-6 space-y-4">
+
+                <!-- ===== ACTION BAR: IMPORT & TAMBAH ASET ===== -->
+                <div class="flex flex-wrap items-center justify-end gap-2 fade-in">
+                    <button id="btnImportExcel" onclick="openImportModal()"
+                        class="flex items-center gap-1.5 px-3.5 py-2.5 text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-xl transition shadow-sm">
+                        <i class="fa-solid fa-file-excel text-xs"></i>
+                        <span>Import Excel/CSV</span>
+                    </button>
+                    <button onclick="openAddAssetModal()"
+                        class="flex items-center gap-1.5 px-3.5 py-2.5 text-xs font-bold text-white bg-gradient-to-r from-kai-blue to-kai-blueLight hover:from-kai-blueLight hover:to-kai-blue rounded-xl transition shadow-sm">
+                        <i class="fa-solid fa-plus text-xs"></i>
+                        <span>Tambah Aset</span>
+                    </button>
+                </div>
+
+                <!-- ===== FILTERS ===== -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 fade-in">
+                    <div class="asset-filter-grid">
+                        <div class="asset-filter-search relative">
+                            <span class="search-icon absolute inset-y-0 left-3 flex items-center text-slate-400">
+                                <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                            </span>
+                            <input type="text" id="searchInput" placeholder="Cari nama, IP, atau MAC address..." oninput="filterAssets()"
+                                class="form-input pl-9 w-full" />
+                        </div>
+                        <select id="filterCategory" onchange="filterAssets()" class="form-input py-2">
+                            <option value="ALL">Semua Kategori</option>
+                        </select>
+                        <select id="filterStatus" onchange="filterAssets()" class="form-input py-2">
+                            <option value="ALL">Semua Status</option>
+                            <option value="Baik">Baik</option>
+                            <option value="Perawatan">Perawatan</option>
+                            <option value="Rusak">Rusak</option>
+                        </select>
+                        <select id="filterLocation" onchange="filterAssets()" class="form-input py-2">
+                            <option value="ALL">Semua Lokasi</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- ===== TABLE (DESKTOP) ===== -->
+                <div class="table-wrapper bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden fade-in">
+                    <div class="overflow-x-auto">
+                        <table class="data-table w-full min-w-[700px]">
+                            <thead>
+                                <tr>
+                                    <th>Nama Aset</th>
+                                    <th>Kategori</th>
+                                    <th>IP Address</th>
+                                    <th>Lokasi</th>
+                                    <th>Status</th>
+                                    <th>Maintenance</th>
+                                    <th class="text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="assetsTableBody">
+                                <!-- Rendered by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ===== CARDS (MOBILE) ===== -->
+                <div class="asset-mobile-card space-y-3" id="assetsMobileCards">
+                    <!-- Rendered by JS -->
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- ===== MODAL - SAMA PERSIS DENGAN DASHBOARD ===== -->
+    <div id="modalOverlay" class="fixed inset-0 modal-overlay z-[999] flex items-center justify-center p-3 hidden" onclick="handleModalBgClick(event)">
+        <div id="modalBox" class="modal-box bg-white rounded-3xl shadow-2xl w-full max-w-md max-h-[95vh] overflow-y-auto" onclick="event.stopPropagation()">
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <!-- ===== TOAST CONTAINER - SAMA PERSIS DENGAN DASHBOARD ===== -->
+    <div id="toast-container" class="fixed top-4 right-4 z-[9999] flex flex-col gap-2 w-full max-w-xs pointer-events-none"></div>
+
+    <script src="js/app.js"></script>
+    <script>
+        // =============================================
+        // STATE
+        // =============================================
+        let editingAssetId = null;
+
+        // =============================================
+        // SIDEBAR - SAMA PERSIS DENGAN DASHBOARD
+        // =============================================
+        function openSidebar() {
+            document.getElementById('sidebar').classList.remove('sidebar-closed');
+            document.getElementById('sidebar').classList.add('sidebar-open');
+            document.getElementById('sidebarBackdrop').classList.add('show');
+        }
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.add('sidebar-closed');
+            document.getElementById('sidebar').classList.remove('sidebar-open');
+            document.getElementById('sidebarBackdrop').classList.remove('show');
+        }
+
+        // =============================================
+        // HELPERS - SAMA PERSIS DENGAN DASHBOARD
+        // =============================================
+        function getLocationLabel(locationId, db) {
+            const loc = db.locations.find(l => l.id === locationId);
+            if (!loc) return '-';
+            if (loc.type === 'unit' && loc.parentId) {
+                const parent = db.locations.find(l => l.id === loc.parentId);
+                if (parent) return `${parent.name.replace('Stasiun ', '')} › ${loc.name}`;
+            }
+            return loc.name;
+        }
+
+        function isLocationAllowed(locationId) {
+            const user = getCurrentUser();
+            if (!user) return false;
+            if (user.role === 'superadmin') return true;
+            const db = getDB();
+            if (locationId === user.locationId) return true;
+            const loc = db.locations.find(l => l.id === locationId);
+            return !!(loc && loc.parentId === user.locationId);
+        }
+
+        // =============================================
+        // RENDER TABLE + MOBILE CARDS
+        // =============================================
+        function renderAssetsTable(assets) {
+            const db = getDB();
+            const tbody = document.getElementById('assetsTableBody');
+            const mobileCards = document.getElementById('assetsMobileCards');
+
+            if (!assets || assets.length === 0) {
+                const emptyHTML = `
+                    <div class="text-center py-16 text-slate-400">
+                        <i class="fa-solid fa-box-open text-4xl block mb-3 opacity-30"></i>
+                        <p class="font-semibold text-sm">Tidak ada aset ditemukan</p>
+                        <p class="text-xs mt-1">Coba ubah filter atau tambah aset baru</p>
+                    </div>
+                `;
+                if (tbody) tbody.innerHTML = `<tr><td colspan="7">${emptyHTML}</td></tr>`;
+                if (mobileCards) mobileCards.innerHTML = emptyHTML;
+                return;
+            }
+
+            let tableRows = '';
+            let cards = '';
+            assets.forEach(a => {
+                const cat = db.categories.find(c => c.id === a.category);
+                const locLabel = getLocationLabel(a.locationId, db);
+                const statusBadge = getStatusBadge(a.status);
+
+                // Desktop row
+                tableRows += `
+                    <tr>
+                        <td>
+                            <div class="font-semibold text-slate-800 text-xs leading-snug">${a.name}</div>
+                            <div class="text-[10px] text-slate-400 font-mono mt-0.5">${a.mac || '-'}</div>
+                        </td>
+                        <td><span class="text-[10px] px-2.5 py-1 bg-slate-100 rounded-full text-slate-600 font-bold">${cat ? cat.name : '-'}</span></td>
+                        <td class="font-mono text-slate-500">${a.ip || '-'}</td>
+                        <td class="text-slate-600 max-w-[170px]"><span class="truncate block">${locLabel}</span></td>
+                        <td><span class="${statusBadge}">${a.status}</span></td>
+                        <td class="text-slate-400 text-[11px]">${formatDateShort(a.lastMaintenance)}</td>
+                        <td>
+                            <div class="flex items-center justify-center gap-1">
+                                <button onclick="openEditAssetModal('${a.id}')" class="w-7 h-7 flex items-center justify-center rounded-lg bg-blue-50 text-kai-blue hover:bg-kai-blue hover:text-white transition" title="Edit">
+                                    <i class="fa-solid fa-pen text-xs"></i>
+                                </button>
+                                <button onclick="deleteAsset('${a.id}')" class="w-7 h-7 flex items-center justify-center rounded-lg bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition" title="Hapus">
+                                    <i class="fa-solid fa-trash text-xs"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+
+                // Mobile card
+                cards += `
+                    <div class="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm space-y-3">
+                        <div class="flex items-start justify-between gap-2">
+                            <div>
+                                <p class="text-sm font-bold text-slate-800 leading-snug">${a.name}</p>
+                                <p class="text-[10px] text-slate-400 font-mono mt-0.5">${a.ip || '-'}</p>
+                            </div>
+                            <span class="${statusBadge} flex-shrink-0">${a.status}</span>
+                        </div>
+                        <div class="flex flex-wrap gap-2 text-[10px]">
+                            <span class="px-2.5 py-1 bg-slate-100 rounded-full text-slate-500 font-bold">${cat ? cat.name : '-'}</span>
+                            <span class="px-2.5 py-1 bg-slate-50 rounded-full text-slate-500 border border-slate-200">${locLabel}</span>
+                        </div>
+                        <div class="flex items-center justify-between pt-1 border-t border-slate-100">
+                            <span class="text-[10px] text-slate-400">Terakhir: ${formatDateShort(a.lastMaintenance)}</span>
+                            <div class="flex gap-2">
+                                <button onclick="openEditAssetModal('${a.id}')" class="px-3 py-1 text-[10px] font-bold bg-blue-50 text-kai-blue rounded-lg hover:bg-kai-blue hover:text-white transition">Edit</button>
+                                <button onclick="deleteAsset('${a.id}')" class="px-3 py-1 text-[10px] font-bold bg-red-50 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition">Hapus</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            if (tbody) tbody.innerHTML = tableRows;
+            if (mobileCards) mobileCards.innerHTML = cards;
+        }
+
+        // =============================================
+        // LOAD + FILTER
+        // =============================================
+        function loadAllAssets() {
+            const user = getCurrentUser();
+            const db = getDB();
+            let assets = db.assets;
+
+            if (user && user.role === 'admin' && user.locationId) {
+                const allowedIds = db.locations
+                    .filter(l => l.id === user.locationId || l.parentId === user.locationId)
+                    .map(l => l.id);
+                assets = db.assets.filter(a => allowedIds.includes(a.locationId));
+            }
+
+            document.getElementById('assetCount').textContent = `${assets.length} aset terdaftar`;
+            renderAssetsTable(assets);
+        }
+
+        function filterAssets() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const categoryFilter = document.getElementById('filterCategory').value;
+            const statusFilter = document.getElementById('filterStatus').value;
+            const locationFilter = document.getElementById('filterLocation').value;
+
+            const user = getCurrentUser();
+            const db = getDB();
+            let assets = db.assets;
+
+            if (user && user.role === 'admin' && user.locationId) {
+                const allowedIds = db.locations
+                    .filter(l => l.id === user.locationId || l.parentId === user.locationId)
+                    .map(l => l.id);
+                assets = db.assets.filter(a => allowedIds.includes(a.locationId));
+            }
+
+            const filtered = assets.filter(a => {
+                const matchSearch = !search || a.name.toLowerCase().includes(search) ||
+                    (a.ip && a.ip.includes(search)) || (a.mac && a.mac.toLowerCase().includes(search));
+                const matchCat = categoryFilter === 'ALL' || a.category === categoryFilter;
+                const matchStatus = statusFilter === 'ALL' || a.status === statusFilter;
+                const matchLoc = locationFilter === 'ALL' || a.locationId === locationFilter;
+                return matchSearch && matchCat && matchStatus && matchLoc;
+            });
+
+            document.getElementById('assetCount').textContent = `${filtered.length} aset${filtered.length !== db.assets.length ? ' (difilter)' : ' terdaftar'}`;
+            renderAssetsTable(filtered);
+        }
+
+        function populateFilters() {
+            const db = getDB();
+            const user = getCurrentUser();
+
+            // Categories
+            const catSelect = document.getElementById('filterCategory');
+            catSelect.innerHTML = '<option value="ALL">Semua Kategori</option>';
+            db.categories.forEach(c => {
+                catSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+            });
+
+            // Locations
+            const locSelect = document.getElementById('filterLocation');
+            locSelect.innerHTML = '<option value="ALL">Semua Lokasi</option>';
+            let locs = db.locations;
+            if (user && user.role === 'admin' && user.locationId) {
+                locs = db.locations.filter(l => l.id === user.locationId || l.parentId === user.locationId);
+            }
+            locs.forEach(l => {
+                const label = getLocationLabel(l.id, db);
+                locSelect.innerHTML += `<option value="${l.id}">${label}</option>`;
+            });
+        }
+
+        // =============================================
+        // CRUD
+        // =============================================
+        function deleteAsset(id) {
+            const db = getDB();
+            const asset = db.assets.find(a => a.id === id);
+            if (!asset) return;
+            if (!isLocationAllowed(asset.locationId)) {
+                showToast('Akses Ditolak! Aset di luar wilayah kerja Anda.', 'error'); return;
+            }
+            if (!confirm(`Hapus aset "${asset.name}"?`)) return;
+            db.assets = db.assets.filter(a => a.id !== id);
+            saveDB(db);
+            showToast('Aset berhasil dihapus!', 'info');
+            loadAllAssets();
+        }
+
+        function saveAsset(data, editId = null) {
+            const db = getDB();
+            if (editId) {
+                const idx = db.assets.findIndex(a => a.id === editId);
+                if (idx !== -1) {
+                    if (!isLocationAllowed(data.locationId)) {
+                        showToast('Akses Ditolak! Lokasi tujuan di luar wilayah kerja Anda.', 'error'); return;
+                    }
+                    db.assets[idx] = { ...db.assets[idx], ...data };
+                    showToast('Aset berhasil diperbarui!', 'success');
+                }
+            } else {
+                db.assets.push({ id: generateId('ast'), ...data });
+                showToast('Aset berhasil ditambahkan!', 'success');
+            }
+            saveDB(db);
+            closeModal();
+            loadAllAssets();
+        }
+
+        // =============================================
+        // MODAL - SAMA PERSIS DENGAN DASHBOARD
+        // =============================================
+        function openModal(html) {
+            document.getElementById('modalContent').innerHTML = html;
+            document.getElementById('modalOverlay').classList.remove('hidden');
+            document.getElementById('modalBox').style.maxWidth = '';
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.add('hidden');
+            editingAssetId = null;
+            document.getElementById('modalBox').style.maxWidth = '';
+        }
+
+        function handleModalBgClick(e) {
+            if (e.target === document.getElementById('modalOverlay')) closeModal();
+        }
+
+        function buildAssetFormHTML(asset = null) {
+            const db = getDB();
+            const user = getCurrentUser();
+            const isEdit = !!asset;
+
+            let allowedLocs = db.locations;
+            if (user && user.role === 'admin' && user.locationId) {
+                allowedLocs = db.locations.filter(l => l.id === user.locationId || l.parentId === user.locationId);
+            }
+
+            const locOptions = allowedLocs.map(l => {
+                const label = getLocationLabel(l.id, db);
+                const sel = asset && l.id === asset.locationId ? 'selected' : '';
+                return `<option value="${l.id}" ${sel}>${label}</option>`;
+            }).join('');
+
+            const catOptions = db.categories.map(c => {
+                const sel = asset && c.id === asset.category ? 'selected' : '';
+                return `<option value="${c.id}" ${sel}>${c.name}</option>`;
+            }).join('');
+
+            const statusOpts = ['Baik', 'Perawatan', 'Rusak'].map(s =>
+                `<option value="${s}" ${asset && asset.status === s ? 'selected' : ''}>${s}</option>`
+            ).join('');
+
+            const today = new Date().toISOString().split('T')[0];
+
+            return `
+                <div class="p-5">
+                    <div class="flex items-center justify-between mb-5 pb-3 border-b border-slate-100">
+                        <h3 class="text-sm font-extrabold text-kai-blue flex items-center gap-2">
+                            <i class="fa-solid ${isEdit ? 'fa-pen-to-square' : 'fa-plus-circle'} text-kai-orange"></i>
+                            ${isEdit ? 'Edit Spesifikasi Aset' : 'Tambah Aset Baru'}
+                        </h3>
+                        <button onclick="closeModal()" class="w-7 h-7 flex items-center justify-center rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 transition">
+                            <i class="fa-solid fa-xmark text-xs"></i>
+                        </button>
+                    </div>
+                    <form onsubmit="handleAssetSubmit(event)" class="space-y-4">
+                        <div>
+                            <label class="form-label">Nama Perangkat <span class="text-red-500 normal-case">*</span></label>
+                            <input type="text" id="f-name" class="form-input" value="${asset ? asset.name : ''}" required placeholder="Contoh: Router Cisco ISR 4331" />
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="form-label">Kategori <span class="text-red-500 normal-case">*</span></label>
+                                <select id="f-category" class="form-input">${catOptions}</select>
+                            </div>
+                            <div>
+                                <label class="form-label">Status</label>
+                                <select id="f-status" class="form-input">${statusOpts}</select>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="form-label">IP Address</label>
+                                <input type="text" id="f-ip" class="form-input" value="${asset ? asset.ip : ''}" placeholder="10.4.X.X atau -" />
+                            </div>
+                            <div>
+                                <label class="form-label">MAC Address</label>
+                                <input type="text" id="f-mac" class="form-input" value="${asset ? asset.mac : ''}" placeholder="00:00:XX:XX:XX:XX atau -" />
+                            </div>
+                        </div>
+                        <div>
+                            <label class="form-label">Lokasi Penempatan <span class="text-red-500 normal-case">*</span></label>
+                            <select id="f-location" class="form-input">${locOptions}</select>
+                            ${user && user.role === 'admin' ? `<p class="text-[9px] text-slate-400 mt-1.5"><i class="fa-solid fa-lock text-[8px]"></i> Dibatasi sesuai wilayah penugasan Anda</p>` : ''}
+                        </div>
+                        <div>
+                            <label class="form-label">Tanggal Maintenance Terakhir</label>
+                            <input type="date" id="f-maintenance" class="form-input" value="${asset ? asset.lastMaintenance : today}" />
+                        </div>
+                        <div class="flex gap-3 pt-3 border-t border-slate-100 mt-2">
+                            <button type="button" onclick="closeModal()" class="flex-1 py-2.5 border border-slate-200 rounded-xl text-slate-600 font-bold text-xs hover:bg-slate-50 transition">
+                                Batal
+                            </button>
+                            <button type="submit" class="flex-1 py-2.5 bg-gradient-to-r from-kai-blue to-kai-blueLight text-white font-bold rounded-xl text-xs transition shadow-md hover:from-kai-blueLight hover:to-kai-blue">
+                                ${isEdit ? 'Simpan Perubahan' : 'Tambah Aset'}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            `;
+        }
+
+        function handleAssetSubmit(e) {
+            e.preventDefault();
+            const data = {
+                name: document.getElementById('f-name').value,
+                category: document.getElementById('f-category').value,
+                status: document.getElementById('f-status').value,
+                ip: document.getElementById('f-ip').value || '-',
+                mac: document.getElementById('f-mac').value || '-',
+                locationId: document.getElementById('f-location').value,
+                lastMaintenance: document.getElementById('f-maintenance').value || new Date().toISOString().split('T')[0]
+            };
+            saveAsset(data, editingAssetId);
+        }
+
+        function openAddAssetModal() {
+            editingAssetId = null;
+            document.getElementById('modalBox').style.maxWidth = '';
+            openModal(buildAssetFormHTML());
+        }
+
+        function openEditAssetModal(id) {
+            const db = getDB();
+            const asset = db.assets.find(a => a.id === id);
+            if (!asset) return;
+            if (!isLocationAllowed(asset.locationId)) {
+                showToast('Akses Ditolak! Aset di luar wilayah kerja Anda.', 'error'); return;
+            }
+            editingAssetId = id;
+            document.getElementById('modalBox').style.maxWidth = '';
+            openModal(buildAssetFormHTML(asset));
+        }
+
+        // =============================================
+        // IMPORT EXCEL / CSV
+        // =============================================
+        function openImportModal() {
+            document.getElementById('modalBox').style.maxWidth = '520px';
+            openModal(`
+                <div class="p-5">
+                    <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
+                        <h3 class="text-sm font-extrabold text-kai-blue flex items-center gap-2">
+                            <i class="fa-solid fa-file-excel text-emerald-600"></i> Import Data Aset
+                        </h3>
+                        <button onclick="closeModal()" class="w-7 h-7 flex items-center justify-center rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 transition">
+                            <i class="fa-solid fa-xmark text-xs"></i>
+                        </button>
+                    </div>
+
+                    <div class="p-3 bg-blue-50 rounded-xl border border-blue-100 text-xs text-blue-700 mb-4 leading-relaxed">
+                        <p class="font-bold mb-1"><i class="fa-solid fa-circle-info"></i> Petunjuk Import:</p>
+                        <p>Format file: <strong>CSV</strong> atau <strong>Excel (.xlsx)</strong></p>
+                        <p class="mt-1">Kolom wajib: <code class="bg-blue-100 px-1 rounded">Nama Aset, Kategori, IP Address, MAC Address, Lokasi ID, Status, Last Maintenance</code></p>
+                        <button onclick="downloadCSVTemplate()" class="mt-2 flex items-center gap-1 text-emerald-700 hover:text-emerald-800 font-bold transition">
+                            <i class="fa-solid fa-download text-[10px]"></i> Unduh Template CSV
+                        </button>
+                    </div>
+
+                    <div id="dropZone" class="border-2 border-dashed border-slate-200 rounded-2xl p-8 text-center bg-slate-50 hover:bg-slate-100 hover:border-emerald-400 transition cursor-pointer flex flex-col items-center gap-2.5">
+                        <i class="fa-solid fa-cloud-arrow-up text-4xl text-slate-300"></i>
+                        <p class="text-sm font-bold text-slate-600">Drag & Drop file di sini</p>
+                        <p class="text-[11px] text-slate-400">atau klik untuk memilih dari komputer</p>
+                        <input type="file" id="fileInput" accept=".csv,.xlsx" class="hidden" onchange="handleFileSelect(event)" />
+                    </div>
+
+                    <div id="importProgressWrap" class="hidden mt-4 space-y-2">
+                        <div class="flex justify-between text-[10px] font-bold text-slate-500">
+                            <span id="progressText">Memproses...</span>
+                            <span id="progressPct">0%</span>
+                        </div>
+                        <div class="h-2 bg-slate-100 rounded-full overflow-hidden border border-slate-200">
+                            <div id="progressBar" class="h-full w-0 bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-300 rounded-full"></div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3 mt-4 pt-3 border-t border-slate-100">
+                        <button onclick="closeModal()" class="flex-1 py-2.5 border border-slate-200 rounded-xl text-slate-600 font-bold text-xs hover:bg-slate-50 transition">Batal</button>
+                        <button onclick="document.getElementById('fileInput').click()" class="flex-1 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold rounded-xl text-xs transition">Pilih Berkas</button>
+                    </div>
+                </div>
+            `);
+
+            const dropZone = document.getElementById('dropZone');
+            if (dropZone) {
+                dropZone.addEventListener('click', () => document.getElementById('fileInput').click());
+                dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('border-emerald-500', 'bg-emerald-50'); });
+                dropZone.addEventListener('dragleave', () => dropZone.classList.remove('border-emerald-500', 'bg-emerald-50'));
+                dropZone.addEventListener('drop', e => {
+                    e.preventDefault();
+                    dropZone.classList.remove('border-emerald-500', 'bg-emerald-50');
+                    if (e.dataTransfer.files.length > 0) processFile(e.dataTransfer.files[0]);
+                });
+            }
+        }
+
+        function handleFileSelect(e) {
+            if (e.target.files.length > 0) processFile(e.target.files[0]);
+        }
+
+        function downloadCSVTemplate() {
+            const csv = 'Nama Aset,Kategori,IP Address,MAC Address,Lokasi ID,Status,Last Maintenance\n'
+                + 'Router Cisco ISR Tarahan,Router,10.4.1.1,00:0A:95:9D:68:16,st-tarahan,Baik,2026-07-16\n'
+                + 'Switch D-Link Kotabumi,Switch,10.4.17.5,00:25:90:11:22:33,st-kotabumi,Perawatan,2026-07-10\n';
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'sivera_template_import.csv';
+            a.click();
+            URL.revokeObjectURL(a.href);
+            showToast('Template CSV diunduh!', 'success');
+        }
+
+        function processFile(file) {
+            const wrap = document.getElementById('importProgressWrap');
+            const bar = document.getElementById('progressBar');
+            const txt = document.getElementById('progressText');
+            const pct = document.getElementById('progressPct');
+            const dz = document.getElementById('dropZone');
+            if (!wrap) return;
+
+            dz.classList.add('hidden');
+            wrap.classList.remove('hidden');
+
+            let p = 0;
+            const steps = ['Membaca berkas...', 'Memvalidasi data...', 'Menyimpan ke database...', 'Selesai!'];
+            const interval = setInterval(() => {
+                p += 8;
+                if (p > 100) p = 100;
+                bar.style.width = p + '%';
+                pct.textContent = p + '%';
+                txt.textContent = steps[Math.floor(p / 25)] || steps[3];
+
+                if (p >= 100) {
+                    clearInterval(interval);
+                    if (file.name.endsWith('.csv')) {
+                        const reader = new FileReader();
+                        reader.onload = e => parseCSV(e.target.result);
+                        reader.readAsText(file);
+                    } else {
+                        mockImport(file.name);
+                    }
+                }
+            }, 120);
+        }
+
+        function parseCSV(text) {
+            const db = getDB();
+            const lines = text.split('\n');
+            let added = 0, skipped = 0;
+            for (let i = 1; i < lines.length; i++) {
+                const cols = lines[i].trim().split(',');
+                if (cols.length < 5 || !cols[0].trim()) { skipped++; continue; }
+                const locExists = db.locations.some(l => l.id === cols[4].trim());
+                if (!locExists) { skipped++; continue; }
+                const cat = db.categories.find(c => c.name.toLowerCase() === (cols[1] || '').trim().toLowerCase());
+                db.assets.push({
+                    id: generateId('ast'),
+                    name: cols[0].trim(),
+                    category: cat ? cat.id : 'cat-1',
+                    ip: cols[2].trim() || '-',
+                    mac: cols[3].trim() || '-',
+                    locationId: cols[4].trim(),
+                    status: cols[5]?.trim() || 'Baik',
+                    lastMaintenance: cols[6]?.trim() || new Date().toISOString().split('T')[0]
+                });
+                added++;
+            }
+            saveDB(db);
+            showToast(`Import selesai! ${added} aset ditambahkan. (Dilewati: ${skipped})`, 'success');
+            closeModal();
+            loadAllAssets();
+        }
+
+        function mockImport(filename) {
+            const db = getDB();
+            db.assets.push({
+                id: generateId('ast'), name: 'Access Point Aruba AP-505 (Import)', category: 'cat-7',
+                ip: '10.4.33.80', mac: '00:24:6C:55:66:77', locationId: 'st-baturaja',
+                status: 'Baik', lastMaintenance: new Date().toISOString().split('T')[0]
+            });
+            saveDB(db);
+            showToast(`Import "${filename}" berhasil! 1 aset ditambahkan.`, 'success');
+            closeModal();
+            loadAllAssets();
+        }
+
+        // =============================================
+        // TOGGLE USER MENU - SAMA PERSIS DENGAN DASHBOARD
+        // =============================================
+        function toggleUserMenu() {
+            const menu = document.getElementById('userMenu');
+            if (menu) menu.classList.toggle('hidden');
+        }
+
+        document.addEventListener('click', function(e) {
+            const menu = document.getElementById('userMenu');
+            const button = document.querySelector('button[onclick="toggleUserMenu()"]');
+            if (menu && !menu.classList.contains('hidden')) {
+                if (!menu.contains(e.target) && (!button || !button.contains(e.target))) {
+                    menu.classList.add('hidden');
+                }
+            }
+        });
+
+        // =============================================
+// INIT - SAMA PERSIS DENGAN DASHBOARD
+// =============================================
+document.addEventListener('DOMContentLoaded', function () {
+    const user = checkAuth();
+    if (!user) return;
+
+    // Inisialisasi sidebar - hanya sekali
+    initSidebar();
+
+    if (user.role === 'admin') {
+        const btn = document.getElementById('btnImportExcel');
+        if (btn) btn.style.display = 'none';
+    }
+
+    document.getElementById('modalOverlay').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+
+    populateFilters();
+    loadAllAssets();
+});
+    </script>
+</body>
+
+</html>

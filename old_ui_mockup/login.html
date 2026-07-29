@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - SIVERA IV</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        kai: { blue: '#0D2C54', blueLight: '#1B497E', orange: '#EF7D00', orangeHover: '#D66F00' }
+                    },
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] }
+                }
+            }
+        };
+    </script>
+    <style>
+        .login-bg {
+            background: linear-gradient(135deg, #0D2C54 0%, #1B497E 100%);
+        }
+        .modal-box {
+            animation: modalIn 0.25s ease;
+        }
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.96) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 24px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            z-index: 9999;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            animation: slideIn 0.3s ease;
+        }
+        .toast-success { background: #10B981; }
+        .toast-error { background: #EF4444; }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(100px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+    </style>
+</head>
+
+<body class="min-h-screen bg-slate-50 font-sans">
+
+    <div class="min-h-screen flex">
+        <!-- Left Side - Branding -->
+        <div class="hidden lg:flex lg:w-5/12 login-bg text-white p-12 flex-col justify-between relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-64 h-64 rounded-full bg-white/5 -mr-32 -mt-32"></div>
+            <div class="absolute bottom-0 left-0 w-80 h-80 rounded-full bg-white/5 -ml-40 -mb-40"></div>
+
+            <div>
+                <div class="flex items-center gap-3">
+                    <img src="logo.png" alt="Logo KAI" class="h-16 w-auto bg-white/10 rounded-xl p-1.5">
+                    <div>
+                        <span class="text-xl font-extrabold tracking-tight">SIVERA IV</span>
+                        <p class="text-sm text-white/70 -mt-0.5">Sistem Informasi Divre IV</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-4 relative z-10">
+                <h3 class="text-3xl font-extrabold leading-tight">Kelola Aset TI dengan <span class="text-[#EF7D00]">Lebih Cepat</span></h3>
+                <p class="text-sm text-white/70 leading-relaxed max-w-sm">
+                    Pantau seluruh perangkat jaringan di wilayah Divre IV melalui peta interaktif berbasis Single Page Application.
+                </p>
+            </div>
+
+            <div class="text-xs text-white/40 relative z-10">
+                &copy; 2026 PT KAI Divre IV Tanjung Karang
+            </div>
+        </div>
+
+        <!-- Right Side - Login Form -->
+        <div class="flex-1 flex items-center justify-center p-6 bg-white lg:bg-transparent">
+            <div class="w-full max-w-md space-y-6">
+                <!-- Mobile Logo -->
+                <div class="lg:hidden text-center">
+                    <div class="inline-flex items-center gap-3">
+                        <img src="logo.png" alt="Logo KAI" class="h-14 w-auto object-contain">
+                        <div>
+                            <span class="text-lg font-extrabold text-[#0D2C54]">SIVERA IV</span>
+                            <p class="text-[10px] text-slate-400 -mt-0.5">Sistem Informasi Divre IV</p>
+                        </div>
+                    </div>
+                    <h2 class="text-2xl font-extrabold text-[#0D2C54] mt-6">Selamat Datang</h2>
+                    <p class="text-sm text-slate-500">Masuk ke sistem SIVERA IV</p>
+                </div>
+
+                <div class="hidden lg:block">
+                    <h2 class="text-2xl font-extrabold text-[#0D2C54]">Selamat Datang</h2>
+                    <p class="text-sm text-slate-500">Masuk ke sistem SIVERA IV</p>
+                </div>
+
+                <!-- Form -->
+                <form id="loginForm" class="space-y-5" onsubmit="handleLogin(event)">
+                    <div>
+                        <label class="text-xs font-bold text-slate-600 uppercase tracking-wider">Email atau NIP</label>
+                        <div class="relative mt-1.5">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
+                                <i class="fa-solid fa-envelope"></i>
+                            </span>
+                            <input type="text" id="loginEmail" required placeholder="nama@kai.id atau NIP"
+                                class="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#EF7D00] focus:border-transparent transition text-sm bg-slate-50/50" />
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex items-center justify-between">
+                            <label class="text-xs font-bold text-slate-600 uppercase tracking-wider">Kata Sandi</label>
+                            <button type="button" onclick="openForgotPassword()"
+                                class="text-xs font-bold text-[#EF7D00] hover:text-[#D66F00] transition">Lupa Password?</button>
+                        </div>
+                        <div class="relative mt-1.5">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
+                                <i class="fa-solid fa-lock"></i>
+                            </span>
+                            <input type="password" id="loginPassword" required placeholder="Masukkan kata sandi"
+                                class="w-full pl-11 pr-12 py-3.5 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#EF7D00] focus:border-transparent transition text-sm bg-slate-50/50" />
+                            <button type="button" onclick="togglePassword('loginPassword', this)"
+                                class="absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400 hover:text-slate-600 transition">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full bg-gradient-to-r from-[#0D2C54] to-[#1B497E] hover:from-[#1B497E] hover:to-[#0D2C54] text-white font-bold py-3.5 rounded-2xl shadow-lg shadow-[#0D2C54]/25 transition transform hover:scale-[1.01] flex items-center justify-center gap-3 text-sm">
+                        Masuk <i class="fa-solid fa-right-to-bracket"></i>
+                    </button>
+                </form>
+
+                <div class="text-center text-sm text-slate-500">
+                    Belum punya akun?
+                    <a href="register.html" class="text-[#EF7D00] font-bold hover:text-[#D66F00] transition hover:underline">Daftar di sini</a>
+                </div>
+
+                <!-- Demo Credentials -->
+                <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200/60">
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider text-center">Akun Demo</p>
+                    <div class="grid grid-cols-2 gap-3 mt-2 text-xs">
+                        <div class="text-center bg-white rounded-xl p-2 border border-slate-100">
+                            <p class="font-bold text-[#0D2C54] text-sm">Superadmin</p>
+                            <p class="text-slate-400 text-[10px]">superadmin@kai.id</p>
+                            <p class="text-slate-400 text-[10px] font-mono">admin123</p>
+                        </div>
+                        <div class="text-center bg-white rounded-xl p-2 border border-slate-100">
+                            <p class="font-bold text-[#EF7D00] text-sm">Admin</p>
+                            <p class="text-slate-400 text-[10px]">admin.tarahan@kai.id</p>
+                            <p class="text-slate-400 text-[10px] font-mono">admin123</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div id="forgotModal" class="fixed inset-0 hidden items-center justify-center p-4 bg-slate-900/60 z-50 backdrop-blur-sm">
+        <div class="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl border border-slate-100 modal-box">
+            <div class="flex justify-between items-center mb-4">
+                <div class="flex items-center gap-2">
+                    <img src="logo.png" alt="Logo KAI" class="h-12 w-auto object-contain">
+                    <span class="text-sm font-extrabold text-[#0D2C54]">SIVERA IV</span>
+                </div>
+                <button onclick="closeForgotPassword()" class="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-600 transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <h2 class="font-extrabold text-lg text-[#0D2C54]">Lupa Kata Sandi?</h2>
+            <p class="text-xs text-slate-500 mt-1 leading-relaxed">
+                Masukkan NIP atau Email Anda untuk mengatur ulang kata sandi.
+            </p>
+            <form class="mt-5 space-y-4" onsubmit="resetPassword(event)">
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">NIP atau Email</label>
+                    <input id="resetIdentifier" type="text" required placeholder="NIP atau Email KAI" 
+                        class="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#EF7D00] text-sm bg-slate-50/50" />
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">Kata Sandi Baru</label>
+                    <input id="resetPasswordValue" type="password" required minlength="6" placeholder="Minimal 6 karakter" 
+                        class="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#EF7D00] text-sm bg-slate-50/50" />
+                </div>
+                <button class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-[#0D2C54] to-[#1B497E] hover:from-[#1B497E] hover:to-[#0D2C54] text-white font-bold text-sm shadow-md transition-all">
+                    <i class="fa-solid fa-key mr-2"></i> Reset Kata Sandi
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Database functions
+        function getDB() {
+            const defaultDB = {
+                users: [
+                    {
+                        id: 1,
+                        name: 'Super Admin',
+                        email: 'superadmin@kai.id',
+                        nip: '198501012010011001',
+                        password: 'admin123',
+                        role: 'superadmin',
+                        locationId: null,
+                        avatar: null
+                    },
+                    {
+                        id: 2,
+                        name: 'Admin Tarahan',
+                        email: 'admin.tarahan@kai.id',
+                        nip: '198502022011022002',
+                        password: 'admin123',
+                        role: 'admin',
+                        locationId: 'tarahan',
+                        avatar: null
+                    }
+                ]
+            };
+            
+            const stored = localStorage.getItem('sivera_db');
+            if (stored) {
+                try {
+                    const parsed = JSON.parse(stored);
+                    if (parsed.users && parsed.users.length > 0) {
+                        return parsed;
+                    }
+                } catch (e) {}
+            }
+            localStorage.setItem('sivera_db', JSON.stringify(defaultDB));
+            return defaultDB;
+        }
+
+        function saveDB(db) {
+            localStorage.setItem('sivera_db', JSON.stringify(db));
+        }
+
+        // Toast notification
+        function showToast(message, type = 'success') {
+            const existing = document.querySelector('.toast');
+            if (existing) existing.remove();
+            
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Login handler
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            if (!email || !password) {
+                showToast('Harap isi email/NIP dan password!', 'error');
+                return;
+            }
+
+            const db = getDB();
+            const user = db.users.find(u => (u.email === email || u.nip === email) && u.password === password);
+
+            if (user) {
+                // Save user session
+                const userSession = {
+                    id: user.id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role,
+                    locationId: user.locationId,
+                    avatar: user.avatar || null,
+                    nip: user.nip || null
+                };
+                localStorage.setItem('sivera_user', JSON.stringify(userSession));
+                
+                showToast(`Selamat datang, ${user.name}!`, 'success');
+                
+                // Redirect to dashboard
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 500);
+                return;
+            }
+
+            showToast('Email/NIP atau password salah!', 'error');
+        }
+
+        // Forgot password handlers
+        function openForgotPassword() { 
+            document.getElementById('forgotModal').classList.remove('hidden');
+            document.getElementById('forgotModal').classList.add('flex');
+        }
+        
+        function closeForgotPassword() { 
+            document.getElementById('forgotModal').classList.remove('flex');
+            document.getElementById('forgotModal').classList.add('hidden');
+        }
+
+        function resetPassword(e) {
+            e.preventDefault();
+            const id = document.getElementById('resetIdentifier').value.trim();
+            const newPassword = document.getElementById('resetPasswordValue').value;
+            
+            if (!id || !newPassword || newPassword.length < 6) {
+                showToast('Isi semua field dengan benar (min. 6 karakter)!', 'error');
+                return;
+            }
+            
+            const db = getDB();
+            const user = db.users.find(u => u.email === id || u.nip === id);
+            
+            if (!user) {
+                showToast('Akun tidak ditemukan.', 'error');
+                return;
+            }
+            
+            user.password = newPassword;
+            saveDB(db);
+            closeForgotPassword();
+            showToast('Kata sandi berhasil diubah. Silakan masuk.', 'success');
+            
+            // Reset form
+            document.getElementById('resetIdentifier').value = '';
+            document.getElementById('resetPasswordValue').value = '';
+        }
+
+        // Toggle password visibility
+        function togglePassword(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fa-solid fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fa-solid fa-eye';
+            }
+        }
+
+        // Check if already logged in
+        (function checkSession() {
+            const user = localStorage.getItem('sivera_user');
+            if (user) {
+                try {
+                    const parsed = JSON.parse(user);
+                    // Optional: redirect if already logged in
+                    // window.location.href = 'dashboard.html';
+                } catch (e) {}
+            }
+        })();
+    </script>
+</body>
+
+</html>

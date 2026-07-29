@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Master Lokasi - SIVERA IV</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/style.css" />
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        kai: { blue: '#0D2C54', blueLight: '#1B497E', orange: '#EF7D00', orangeHover: '#D66F00' }
+                    },
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] }
+                }
+            }
+        };
+    </script>
+
+    <style>
+        .sidebar { transition: transform 0.35s cubic-bezier(0.4,0,0.2,1); }
+        .sidebar-closed { transform: translateX(-100%); }
+        .sidebar-open { transform: translateX(0); }
+        @media (min-width: 768px) { .sidebar { transform: translateX(0) !important; } }
+        .nav-active { background: #F1F5F9; color: #0D2C54; border-right: 3px solid #EF7D00; font-weight: 700; }
+        .nav-link { transition: all 0.15s ease; }
+        .nav-link:hover { background: #F8FAFC; color: #0D2C54; }
+        .modal-overlay { background: rgba(15,23,42,0.55); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+        .modal-box { animation: modalIn 0.25s ease; }
+        @keyframes modalIn { from { opacity: 0; transform: scale(0.96) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        .table-row-hover:hover { background: #F8FAFC; }
+        #sidebarBackdrop { display: none; position: fixed; inset: 0; z-index: 35; background: rgba(0,0,0,0.4); }
+        @media (max-width: 767px) { #sidebarBackdrop.show { display: block; } }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: #F1F5F9; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+        #topUserAvatar { display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:#0D2C54;color:white;font-size:12px;font-weight:700;flex-shrink:0; }
+        #topUserAvatar img { width:100%;height:100%;object-fit:cover;border-radius:50%; }
+
+        /* ===== FADE IN ===== */
+        @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeSlideIn 0.3s ease both; }
+    </style>
+</head>
+
+<body class="min-h-screen bg-slate-50 font-sans">
+
+    <div id="sidebarBackdrop" onclick="closeSidebar()"></div>
+
+    <div class="min-h-screen flex">
+        <!-- ====== SIDEBAR ====== -->
+        <aside id="sidebar"
+            class="sidebar sidebar-open fixed md:relative top-0 left-0 h-full md:h-auto w-64 bg-white border-r border-slate-200 flex flex-col z-40 shadow-xl md:shadow-none flex-shrink-0">
+
+            <div class="p-4 border-b border-slate-200 flex items-center justify-between bg-white">
+                <div class="flex items-center gap-3">
+                    <img src="logo.png" alt="Logo KAI" class="h-12 w-auto object-contain">
+                    <div>
+                        <span class="text-sm font-extrabold text-kai-blue">SIVERA IV</span>
+                        <span class="text-[9px] text-slate-400 block leading-none">Divre IV Tanjung Karang</span>
+                    </div>
+                </div>
+                <button onclick="closeSidebar()" class="md:hidden text-slate-400 hover:text-slate-600 transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <nav class="flex-1 p-3 space-y-0.5 overflow-y-auto mt-2">
+                <a href="dashboard.html" class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-800 transition gap-3">
+                    <i class="fa-solid fa-gauge text-base w-5 text-center text-slate-400"></i><span>Dashboard</span>
+                </a>
+                <a href="assets.html" class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-800 transition gap-3">
+                    <i class="fa-solid fa-server text-base w-5 text-center text-slate-400"></i><span>Data Aset</span>
+                </a>
+                <a href="locations.html" class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-medium nav-active transition gap-3">
+                    <i class="fa-solid fa-map-location-dot text-base w-5 text-center text-kai-orange"></i><span>Master Lokasi</span>
+                </a>
+                <a href="categories.html" class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-800 transition gap-3">
+                    <i class="fa-solid fa-tags text-base w-5 text-center text-slate-400"></i><span>Kategori Aset</span>
+                </a>
+                <a href="users.html" class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-800 transition gap-3">
+                    <i class="fa-solid fa-users-gear text-base w-5 text-center text-slate-400"></i><span>Manajemen User</span>
+                </a>
+                <a href="reports.html" class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-800 transition gap-3">
+                    <i class="fa-solid fa-file-invoice text-base w-5 text-center text-slate-400"></i><span>Laporan</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- ====== MAIN CONTENT ====== -->
+        <div class="flex-1 min-w-0 flex flex-col">
+            <header class="bg-white border-b border-slate-200 py-3 px-4 md:px-6 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+                <div class="flex items-center gap-3">
+                    <button onclick="openSidebar()" class="md:hidden text-slate-500 hover:text-slate-700 transition p-1.5 rounded-lg hover:bg-slate-100">
+                        <i class="fa-solid fa-bars text-lg"></i>
+                    </button>
+                    <div>
+                        <h1 class="text-sm font-extrabold text-kai-blue leading-tight">Master Lokasi</h1>
+                        <p class="text-[10px] text-slate-400 hidden sm:block" id="locationCount">0 lokasi terdaftar</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <span class="text-xs px-2.5 py-1 rounded-full font-bold" id="roleBadge">Superadmin</span>
+                    <div class="relative">
+                        <button onclick="toggleUserMenu()" class="flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-slate-100 text-sm font-bold text-kai-blue">
+                            <span id="topUserAvatar">SA</span>
+                            <i class="fa-solid fa-chevron-down text-xs"></i>
+                        </button>
+                        <div id="userMenu" class="hidden absolute right-0 mt-2 w-44 bg-white rounded-xl shadow-xl border border-slate-100 p-1.5 text-sm z-50">
+                            <button onclick="openProfileModal()" class="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-50 flex items-center gap-2">
+                                <i class="fa-solid fa-user-pen w-5 text-kai-orange"></i> Profil pengguna
+                            </button>
+                            <button onclick="handleLogout()" class="w-full text-left px-3 py-2 rounded-lg hover:bg-rose-50 text-rose-600 flex items-center gap-2">
+                                <i class="fa-solid fa-right-from-bracket w-5"></i> Logout
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="p-4 md:p-6 space-y-4">
+
+                <!-- ===== ACTION BAR: TAMBAH LOKASI ===== -->
+                <div class="flex flex-wrap items-center justify-end gap-2 fade-in">
+                    <button onclick="openAddLocationModal()"
+                        class="flex items-center gap-1.5 px-3.5 py-2.5 text-xs font-bold text-white bg-gradient-to-r from-kai-blue to-kai-blueLight hover:from-kai-blueLight hover:to-kai-blue rounded-xl transition shadow-sm">
+                        <i class="fa-solid fa-plus text-xs"></i>
+                        <span>Tambah Lokasi</span>
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden fade-in">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="bg-slate-50 border-b border-slate-200 text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                                    <th class="py-3 px-4 text-left">Nama Lokasi</th>
+                                    <th class="py-3 px-4 text-left">Tipe</th>
+                                    <th class="py-3 px-4 text-left">Induk</th>
+                                    <th class="py-3 px-4 text-left">Total Aset</th>
+                                    <th class="py-3 px-4 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="locationsTableBody">
+                                <!-- Rendered by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== TOAST CONTAINER ====== -->
+    <div id="toast-container" class="fixed top-4 right-4 z-[999] flex flex-col gap-2 max-w-sm w-full"></div>
+
+    <!-- ====== MODAL ====== -->
+    <div id="modalOverlay" class="fixed inset-0 modal-overlay z-[999] flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl shadow-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        // =============================================
+        // STATE
+        // =============================================
+        let editingLocationId = null;
+
+        // =============================================
+        // SIDEBAR
+        // =============================================
+        function openSidebar() {
+            document.getElementById('sidebar').classList.remove('sidebar-closed');
+            document.getElementById('sidebar').classList.add('sidebar-open');
+            document.getElementById('sidebarBackdrop').classList.add('show');
+        }
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.add('sidebar-closed');
+            document.getElementById('sidebar').classList.remove('sidebar-open');
+            document.getElementById('sidebarBackdrop').classList.remove('show');
+        }
+
+        // =============================================
+        // RENDER LOCATIONS TABLE
+        // =============================================
+        function renderLocationsTable() {
+            const db = getDB();
+            const tbody = document.getElementById('locationsTableBody');
+            if (!tbody) return;
+
+            if (db.locations.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="py-12 text-center text-slate-400 text-sm">
+                            <i class="fa-solid fa-map-location-dot text-3xl block mb-2 opacity-30"></i>
+                            Belum ada lokasi terdaftar
+                        </td>
+                    </tr>
+                `;
+                document.getElementById('locationCount').textContent = '0 lokasi terdaftar';
+                return;
+            }
+
+            let html = '';
+            // Stasiun first, then units
+            const sorted = [...db.locations].sort((a, b) => {
+                if (a.type === b.type) return a.name.localeCompare(b.name);
+                return a.type === 'stasiun' ? -1 : 1;
+            });
+
+            sorted.forEach(loc => {
+                const assetCount = db.assets.filter(a => a.locationId === loc.id).length;
+                const parent = loc.parentId ? db.locations.find(l => l.id === loc.parentId) : null;
+                html += `
+                    <tr class="border-b border-slate-100 table-row-hover transition">
+                        <td class="py-3 px-4">
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-3 h-3 rounded-full flex-shrink-0" style="background:${loc.color}"></span>
+                                <span class="font-semibold text-slate-800">${loc.name}</span>
+                            </div>
+                        </td>
+                        <td class="py-3 px-4">
+                            <span class="text-[10px] px-2.5 py-1 rounded-full font-bold ${loc.type === 'stasiun' ? 'bg-kai-blue/10 text-kai-blue' : 'bg-purple-100 text-purple-700'}">
+                                ${loc.type === 'stasiun' ? 'Stasiun' : 'Unit Pendukung'}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-slate-500 text-xs">${parent ? parent.name : '<span class="text-slate-300">—</span>'}</td>
+                        <td class="py-3 px-4">
+                            <span class="font-bold text-slate-700">${assetCount}</span>
+                            <span class="text-slate-400 text-xs"> aset</span>
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <button onclick="openEditLocationModal('${loc.id}')" class="text-slate-400 hover:text-kai-blue mx-1 transition" title="Edit">
+                                <i class="fa-solid fa-pen text-xs"></i>
+                            </button>
+                            <button onclick="deleteLocation('${loc.id}')" class="text-slate-400 hover:text-red-600 mx-1 transition" title="Hapus">
+                                <i class="fa-solid fa-trash text-xs"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+            document.getElementById('locationCount').textContent = `${db.locations.length} lokasi terdaftar`;
+        }
+
+        // =============================================
+        // CRUD OPERATIONS
+        // =============================================
+        function addLocation(data) {
+            const db = getDB();
+            const newLoc = {
+                id: 'loc-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+                name: data.name,
+                type: data.type || 'unit',
+                x: parseInt(data.x) || 300,
+                y: parseInt(data.y) || 300,
+                color: data.type === 'stasiun' ? '#0D2C54' : '#7C3AED',
+                parentId: data.parentId || null
+            };
+            db.locations.push(newLoc);
+            saveDB(db);
+            showToast('Lokasi berhasil ditambahkan!', 'success');
+            renderLocationsTable();
+            closeModal();
+        }
+
+        function updateLocation(id, data) {
+            const db = getDB();
+            const idx = db.locations.findIndex(l => l.id === id);
+            if (idx !== -1) {
+                db.locations[idx] = { ...db.locations[idx], ...data };
+                saveDB(db);
+                showToast('Lokasi berhasil diperbarui!', 'success');
+                renderLocationsTable();
+                closeModal();
+            }
+        }
+
+        function deleteLocation(id) {
+            const db = getDB();
+            const inUse = db.assets.some(a => a.locationId === id);
+            if (inUse) {
+                showToast('Lokasi masih memiliki aset terdaftar. Hapus atau pindahkan aset dahulu.', 'warning');
+                return;
+            }
+            if (!confirm('Yakin ingin menghapus lokasi ini?')) return;
+            db.locations = db.locations.filter(l => l.id !== id);
+            // Also remove child units
+            db.locations = db.locations.filter(l => l.parentId !== id);
+            saveDB(db);
+            showToast('Lokasi berhasil dihapus!', 'info');
+            renderLocationsTable();
+        }
+
+        // =============================================
+        // MODAL
+        // =============================================
+        function openModal(content) {
+            document.getElementById('modalContent').innerHTML = content;
+            document.getElementById('modalOverlay').classList.remove('hidden');
+        }
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.add('hidden');
+            editingLocationId = null;
+        }
+
+        function buildParentOptions(selected = '') {
+            const db = getDB();
+            const stations = db.locations.filter(l => l.type === 'stasiun');
+            return stations.map(l =>
+                `<option value="${l.id}" ${l.id === selected ? 'selected' : ''}>${l.name}</option>`
+            ).join('');
+        }
+
+        function openAddLocationModal() {
+            openModal(`
+                <h3 class="text-lg font-bold text-kai-blue mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-plus-circle text-kai-orange"></i> Tambah Lokasi
+                </h3>
+                <form onsubmit="handleAddLocation(event)" class="space-y-3">
+                    <div>
+                        <label class="text-xs font-bold text-slate-600">Nama Lokasi <span class="text-red-500">*</span></label>
+                        <input type="text" id="modal-loc-name" required placeholder="Contoh: Stasiun Baturaja"
+                            class="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-kai-orange text-sm bg-slate-50/50 mt-1" />
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-xs font-bold text-slate-600">Tipe</label>
+                            <select id="modal-loc-type" onchange="toggleParentField()" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-kai-orange text-sm bg-slate-50/50 mt-1">
+                                <option value="stasiun">Stasiun</option>
+                                <option value="unit">Unit Pendukung</option>
+                            </select>
+                        </div>
+                        <div id="parentField" class="hidden">
+                            <label class="text-xs font-bold text-slate-600">Stasiun Induk</label>
+                            <select id="modal-loc-parent" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-kai-orange text-sm bg-slate-50/50 mt-1">
+                                <option value="">— Pilih Stasiun —</option>
+                                ${buildParentOptions()}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-xs font-bold text-slate-600">Koordinat X (peta)</label>
+                            <input type="number" id="modal-loc-x" value="300" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-kai-orange text-sm bg-slate-50/50 mt-1" />
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-slate-600">Koordinat Y (peta)</label>
+                            <input type="number" id="modal-loc-y" value="300" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-kai-orange text-sm bg-slate-50/50 mt-1" />
+                        </div>
+                    </div>
+                    <div class="flex gap-3 pt-2">
+                        <button type="button" onclick="closeModal()" class="flex-1 py-2.5 border border-slate-200 rounded-xl text-slate-700 font-bold text-sm hover:bg-slate-50 transition">Batal</button>
+                        <button type="submit" class="flex-1 py-2.5 bg-gradient-to-r from-kai-blue to-kai-blueLight hover:from-kai-blueLight hover:to-kai-blue text-white font-bold rounded-xl text-sm transition shadow-md shadow-kai-blue/20">Simpan</button>
+                    </div>
+                </form>
+            `);
+        }
+
+        function toggleParentField() {
+            const type = document.getElementById('modal-loc-type')?.value;
+            const pf = document.getElementById('parentField');
+            if (pf) pf.classList.toggle('hidden', type !== 'unit');
+        }
+
+        function handleAddLocation(e) {
+            e.preventDefault();
+            addLocation({
+                name: document.getElementById('modal-loc-name').value,
+                type: document.getElementById('modal-loc-type').value,
+                x: document.getElementById('modal-loc-x').value,
+                y: document.getElementById('modal-loc-y').value,
+                parentId: document.getElementById('modal-loc-parent')?.value || null
+            });
+        }
+
+        function openEditLocationModal(id) {
+            const db = getDB();
+            const loc = db.locations.find(l => l.id === id);
+            if (!loc) return;
+            editingLocationId = id;
+            openModal(`
+                <h3 class="text-lg font-bold text-kai-blue mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square text-kai-orange"></i> Edit Lokasi
+                </h3>
+                <form onsubmit="handleEditLocation(event)" class="space-y-3">
+                    <div>
+                        <label class="text-xs font-bold text-slate-600">Nama Lokasi <span class="text-red-500">*</span></label>
+                        <input type="text" id="modal-loc-name" value="${loc.name}" required
+                            class="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-kai-orange text-sm bg-slate-50/50 mt-1" />
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-xs font-bold text-slate-600">Tipe</label>
+                            <select id="modal-loc-type" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-kai-orange text-sm bg-slate-50/50 mt-1">
+                                <option value="stasiun" ${loc.type === 'stasiun' ? 'selected' : ''}>Stasiun</option>
+                                <option value="unit" ${loc.type === 'unit' ? 'selected' : ''}>Unit Pendukung</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-slate-600">Warna Node</label>
+                            <input type="color" id="modal-loc-color" value="${loc.color}" class="w-full h-11 rounded-xl border border-slate-200 cursor-pointer bg-white mt-1" />
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-xs font-bold text-slate-600">Koordinat X</label>
+                            <input type="number" id="modal-loc-x" value="${loc.x}" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-kai-orange text-sm bg-slate-50/50 mt-1" />
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-slate-600">Koordinat Y</label>
+                            <input type="number" id="modal-loc-y" value="${loc.y}" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-kai-orange text-sm bg-slate-50/50 mt-1" />
+                        </div>
+                    </div>
+                    <div class="flex gap-3 pt-2">
+                        <button type="button" onclick="closeModal()" class="flex-1 py-2.5 border border-slate-200 rounded-xl text-slate-700 font-bold text-sm hover:bg-slate-50 transition">Batal</button>
+                        <button type="submit" class="flex-1 py-2.5 bg-gradient-to-r from-kai-blue to-kai-blueLight hover:from-kai-blueLight hover:to-kai-blue text-white font-bold rounded-xl text-sm transition shadow-md shadow-kai-blue/20">Update</button>
+                    </div>
+                </form>
+            `);
+        }
+
+        function handleEditLocation(e) {
+            e.preventDefault();
+            if (editingLocationId) {
+                updateLocation(editingLocationId, {
+                    name: document.getElementById('modal-loc-name').value,
+                    type: document.getElementById('modal-loc-type').value,
+                    color: document.getElementById('modal-loc-color').value,
+                    x: parseInt(document.getElementById('modal-loc-x').value),
+                    y: parseInt(document.getElementById('modal-loc-y').value),
+                });
+            }
+        }
+
+        // =============================================
+        // TOAST
+        // =============================================
+        function showToast(message, type = 'success') {
+            const colors = {
+                success: 'bg-emerald-50 border-emerald-200 text-emerald-800',
+                error: 'bg-rose-50 border-rose-200 text-rose-800',
+                warning: 'bg-amber-50 border-amber-200 text-amber-800',
+                info: 'bg-blue-50 border-blue-200 text-blue-800'
+            };
+            const icons = {
+                success: 'fa-circle-check text-emerald-500',
+                error: 'fa-circle-xmark text-rose-500',
+                warning: 'fa-triangle-exclamation text-amber-500',
+                info: 'fa-circle-info text-blue-500'
+            };
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `flex items-start p-4 rounded-2xl border ${colors[type]} shadow-lg transition-all duration-300`;
+            toast.innerHTML = `
+                <i class="fa-solid ${icons[type]} text-lg mt-0.5 mr-3"></i>
+                <div class="flex-1"><p class="text-sm font-semibold">${message}</p></div>
+                <button class="ml-3 text-slate-400 hover:text-slate-600" onclick="this.parentElement.remove()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateX(20px)';
+                    setTimeout(() => toast.remove(), 300);
+                }
+            }, 4000);
+        }
+
+        // =============================================
+        // INIT
+        // =============================================
+        document.addEventListener('DOMContentLoaded', function () {
+            initDB();
+            const user = checkAuth();
+            if (!user) return;
+            updateSidebarNavigation();
+            renderLocationsTable();
+        });
+    </script>
+
+</body>
+
+</html>

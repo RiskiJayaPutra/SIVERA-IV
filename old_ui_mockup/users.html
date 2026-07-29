@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manajemen User - SIVERA IV</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/style.css" />
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        kai: { blue: '#0D2C54', blueLight: '#1B497E', orange: '#EF7D00', orangeHover: '#D66F00' }
+                    },
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] }
+                }
+            }
+        };
+    </script>
+
+    <style>
+        .sidebar { transition: transform 0.35s cubic-bezier(0.4,0,0.2,1); }
+        .sidebar-closed { transform: translateX(-100%); }
+        .sidebar-open { transform: translateX(0); }
+        @media (min-width: 768px) { .sidebar { transform: translateX(0) !important; } }
+        .nav-active { background: #F1F5F9; color: #0D2C54; border-right: 3px solid #EF7D00; font-weight: 700; }
+        .nav-link { transition: all 0.15s ease; }
+        .nav-link:hover { background: #F8FAFC; color: #0D2C54; }
+        .modal-overlay { background: rgba(15,23,42,0.55); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+        .modal-box { animation: modalIn 0.25s ease; }
+        @keyframes modalIn { from { opacity: 0; transform: scale(0.96) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        .table-row-hover:hover { background: #F8FAFC; }
+        #sidebarBackdrop { display: none; position: fixed; inset: 0; z-index: 35; background: rgba(0,0,0,0.4); }
+        @media (max-width: 767px) { #sidebarBackdrop.show { display: block; } }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: #F1F5F9; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+        #topUserAvatar { display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:#0D2C54;color:white;font-size:12px;font-weight:700;flex-shrink:0; }
+        #topUserAvatar img { width:100%;height:100%;object-fit:cover;border-radius:50%; }
+
+        /* ===== FADE IN ===== */
+        @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeSlideIn 0.3s ease both; }
+    </style>
+</head>
+
+<body class="min-h-screen bg-slate-50 font-sans">
+
+    <div id="sidebarBackdrop" onclick="closeSidebar()"></div>
+
+    <div class="min-h-screen flex">
+        <!-- ====== SIDEBAR ====== -->
+        <aside id="sidebar"
+            class="sidebar sidebar-open fixed md:relative top-0 left-0 h-full md:h-auto w-64 bg-white border-r border-slate-200 flex flex-col z-40 shadow-xl md:shadow-none flex-shrink-0">
+
+            <div class="p-4 border-b border-slate-200 flex items-center justify-between bg-white">
+                <div class="flex items-center gap-3">
+                    <img src="logo.png" alt="Logo KAI" class="h-12 w-auto object-contain">
+                    <div>
+                        <span class="text-sm font-extrabold text-kai-blue">SIVERA IV</span>
+                        <span class="text-[9px] text-slate-400 block leading-none">Divre IV Tanjung Karang</span>
+                    </div>
+                </div>
+                <button onclick="closeSidebar()" class="md:hidden text-slate-400 hover:text-slate-600 transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <nav class="flex-1 p-3 space-y-0.5 overflow-y-auto mt-2">
+                <a href="dashboard.html" class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-800 transition gap-3">
+                    <i class="fa-solid fa-gauge text-base w-5 text-center text-slate-400"></i><span>Dashboard</span>
+                </a>
+                <a href="assets.html" class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-800 transition gap-3">
+                    <i class="fa-solid fa-server text-base w-5 text-center text-slate-400"></i><span>Data Aset</span>
+                </a>
+                <a href="locations.html" class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-800 transition gap-3">
+                    <i class="fa-solid fa-map-location-dot text-base w-5 text-center text-slate-400"></i><span>Master Lokasi</span>
+                </a>
+                <a href="categories.html" class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-800 transition gap-3">
+                    <i class="fa-solid fa-tags text-base w-5 text-center text-slate-400"></i><span>Kategori Aset</span>
+                </a>
+                <a href="users.html" class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-medium nav-active transition gap-3">
+                    <i class="fa-solid fa-users-gear text-base w-5 text-center text-kai-orange"></i><span>Manajemen User</span>
+                </a>
+                <a href="reports.html" class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-800 transition gap-3">
+                    <i class="fa-solid fa-file-invoice text-base w-5 text-center text-slate-400"></i><span>Laporan</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- ====== MAIN CONTENT ====== -->
+        <div class="flex-1 min-w-0 flex flex-col">
+            <header class="bg-white border-b border-slate-200 py-3 px-4 md:px-6 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+                <div class="flex items-center gap-3">
+                    <button onclick="openSidebar()" class="md:hidden text-slate-500 hover:text-slate-700 transition p-1.5 rounded-lg hover:bg-slate-100">
+                        <i class="fa-solid fa-bars text-lg"></i>
+                    </button>
+                    <div>
+                        <h1 class="text-sm font-extrabold text-kai-blue leading-tight">Manajemen User</h1>
+                        <p class="text-[10px] text-slate-400 hidden sm:block" id="userCount">0 user terdaftar</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <span class="text-xs px-2.5 py-1 rounded-full font-bold" id="roleBadge">Superadmin</span>
+                    <div class="relative">
+                        <button onclick="toggleUserMenu()" class="flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-slate-100 text-sm font-bold text-kai-blue">
+                            <span id="topUserAvatar">SA</span>
+                            <i class="fa-solid fa-chevron-down text-xs"></i>
+                        </button>
+                        <div id="userMenu" class="hidden absolute right-0 mt-2 w-44 bg-white rounded-xl shadow-xl border border-slate-100 p-1.5 text-sm z-50">
+                            <button onclick="openProfileModal()" class="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-50 flex items-center gap-2">
+                                <i class="fa-solid fa-user-pen w-5 text-kai-orange"></i> Profil pengguna
+                            </button>
+                            <button onclick="handleLogout()" class="w-full text-left px-3 py-2 rounded-lg hover:bg-rose-50 text-rose-600 flex items-center gap-2">
+                                <i class="fa-solid fa-right-from-bracket w-5"></i> Logout
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="p-4 md:p-6 space-y-4">
+
+                <!-- ===== ACTION BAR: TAMBAH USER ===== -->
+                <div class="flex flex-wrap items-center justify-end gap-2 fade-in">
+                    <button onclick="openAddUserModal()"
+                        class="flex items-center gap-1.5 px-3.5 py-2.5 text-xs font-bold text-white bg-gradient-to-r from-kai-blue to-kai-blueLight hover:from-kai-blueLight hover:to-kai-blue rounded-xl transition shadow-sm">
+                        <i class="fa-solid fa-plus text-xs"></i>
+                        <span>Tambah User</span>
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden fade-in">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="bg-slate-50 border-b border-slate-200 text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                                    <th class="py-3 px-4 text-left">Nama</th>
+                                    <th class="py-3 px-4 text-left">Email</th>
+                                    <th class="py-3 px-4 text-left">Role</th>
+                                    <th class="py-3 px-4 text-left">Lokasi Tugas</th>
+                                    <th class="py-3 px-4 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <!-- Rendered by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== TOAST CONTAINER ====== -->
+    <div id="toast-container" class="fixed top-4 right-4 z-[999] flex flex-col gap-2 max-w-sm w-full"></div>
+
+    <!-- ====== MODAL ====== -->
+    <div id="modalOverlay" class="fixed inset-0 modal-overlay z-[999] flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl shadow-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        // =============================================
+        // STATE
+        // =============================================
+        let editingUserId = null;
+
+        // =============================================
+        // SIDEBAR
+        // =============================================
+        function openSidebar() {
+            document.getElementById('sidebar').classList.remove('sidebar-closed');
+            document.getElementById('sidebar').classList.add('sidebar-open');
+            document.getElementById('sidebarBackdrop').classList.add('show');
+        }
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.add('sidebar-closed');
+            document.getElementById('sidebar').classList.remove('sidebar-open');
+            document.getElementById('sidebarBackdrop').classList.remove('show');
+        }
+
+        // =============================================
+        // RENDER USERS TABLE
+        // =============================================
+        function renderUsersTable() {
+            const db = getDB();
+            const tbody = document.getElementById('usersTableBody');
+            if (!tbody) return;
+
+            const currentUserObj = getCurrentUser();
+            const currentUserEmail = currentUserObj?.email;
+
+            if (db.users.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="py-12 text-center text-slate-400 text-sm">
+                            <i class="fa-solid fa-users text-3xl block mb-2 opacity-30"></i>
+                            Belum ada user terdaftar
+                        </td>
+                    </tr>
+                `;
+                document.getElementById('userCount').textContent = '0 user terdaftar';
+                return;
+            }
+
+            let html = '';
+            db.users.forEach(u => {
+                const loc = u.locationId ? db.locations.find(l => l.id === u.locationId) : null;
+                const isCurrentUser = u.email === currentUserEmail;
+                html += `
+                    <tr class="border-b border-slate-100 table-row-hover transition">
+                        <td class="py-3 px-4">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-7 h-7 rounded-full bg-gradient-to-br from-kai-blue to-kai-blueLight text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0">
+                                    ${u.name.substring(0, 2).toUpperCase()}
+                                </div>
+                                <span class="font-semibold text-slate-800">${u.name}</span>
+                                ${isCurrentUser ? '<span class="text-[9px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full font-bold">Anda</span>' : ''}
+                            </div>
+                        </td>
+                        <td class="py-3 px-4 text-slate-500 text-xs">${u.email}</td>
+                        <td class="py-3 px-4">
+                            <span class="text-[10px] px-2.5 py-1 rounded-full font-bold ${u.role === 'superadmin' ? 'bg-kai-blue/10 text-kai-blue' : 'bg-kai-orange/10 text-kai-orange'}">
+                                ${u.role === 'superadmin' ? 'Superadmin' : 'Admin'}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-slate-500 text-xs">${loc ? loc.name : '<span class="text-slate-300">—</span>'}</td>
+                        <td class="py-3 px-4 text-center">
+                            <button onclick="openEditUserModal('${u.id}')" class="text-slate-400 hover:text-kai-blue mx-1 transition" title="Edit">
+                                <i class="fa-solid fa-pen text-xs"></i>
+                            </button>
+                            ${!isCurrentUser ? `
+                                <button onclick="deleteUser('${u.id}')" class="text-slate-400 hover:text-red-600 mx-1 transition" title="Hapus">
+                                    <i class="fa-solid fa-trash text-xs"></i>
+                                </button>
+                            ` : ''}
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+            document.getElementById('userCount').textContent = `${db.users.length} user terdaftar`;
+        }
+
+        // =============================================
+        // CRUD OPERATIONS
+        // =============================================
+        function addUser(data) {
+            const db = getDB();
+            const newUser = {
+                id: 'usr-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+                ...data,
+                password: data.password || 'admin123',
+                role: data.role || 'admin',
+                locationId: data.locationId || null
+            };
+            db.users.push(newUser);
+            saveDB(db);
+            showToast('User berhasil ditambahkan!', 'success');
+            renderUsersTable();
+            closeModal();
+        }
+
+        function updateUser(id, data) {
+            const db = getDB();
+            const idx = db.users.findIndex(u => u.id === id);
+            if (idx !== -1) {
+                db.users[idx] = { ...db.users[idx], ...data };
+                saveDB(db);
+                showToast('User berhasil diperbarui!', 'success');
+                renderUsersTable();
+                closeModal();
+            }
+        }
+
+        function deleteUser(id) {
+            if (!confirm('Yakin ingin menghapus user ini?')) return;
+            const db = getDB();
+            db.users = db.users.filter(u => u.id !== id);
+            saveDB(db);
+            showToast('User berhasil dihapus!', 'info');
+            renderUsersTable();
+        }
+
+        // =============================================
+        // MODAL
+        // =============================================
+        function openModal(content) {
+            document.getElementById('modalContent').innerHTML = content;
+            document.getElementById('modalOverlay').classList.remove('hidden');
+        }
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.add('hidden');
+            editingUserId = null;
+        }
+
+        function buildLocOptions(selected = '') {
+            const db = getDB();
+            return db.locations.map(l =>
+                `<option value="${l.id}" ${l.id === selected ? 'selected' : ''}>${l.name}</option>`
+            ).join('');
+        }
+
+        // =============================================
+        // ADD USER MODAL
+        // =============================================
+        function openAddUserModal() {
+            openModal(`
+                <h3 class="text-lg font-bold text-kai-blue mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-user-plus text-kai-orange"></i> Tambah User
+                </h3>
+                <form onsubmit="handleAddUser(event)" class="space-y-3">
+                    <div>
+                        <label class="text-xs font-bold text-slate-600">Nama Lengkap <span class="text-red-500">*</span></label>
+                        <input type="text" id="modal-user-name" required placeholder="Nama user"
+                            class="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-kai-orange focus:border-transparent text-sm bg-slate-50/50 mt-1" />
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-600">Email <span class="text-red-500">*</span></label>
+                        <input type="email" id="modal-user-email" required placeholder="email@kai.id"
+                            class="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-kai-orange focus:border-transparent text-sm bg-slate-50/50 mt-1" />
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-xs font-bold text-slate-600">Role</label>
+                            <select id="modal-user-role" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-kai-orange text-sm bg-slate-50/50 mt-1">
+                                <option value="admin">Admin</option>
+                                <option value="superadmin">Superadmin</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-slate-600">Lokasi Tugas</label>
+                            <select id="modal-user-location" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-kai-orange text-sm bg-slate-50/50 mt-1">
+                                <option value="">— Pilih Lokasi —</option>
+                                ${buildLocOptions()}
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-600">Password</label>
+                        <input type="text" id="modal-user-pass" value="admin123" placeholder="default: admin123"
+                            class="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-kai-orange text-sm bg-slate-50/50 mt-1" />
+                    </div>
+                    <div class="flex gap-3 pt-2">
+                        <button type="button" onclick="closeModal()" class="flex-1 py-2.5 border border-slate-200 rounded-xl text-slate-700 font-bold text-sm hover:bg-slate-50 transition">Batal</button>
+                        <button type="submit" class="flex-1 py-2.5 bg-gradient-to-r from-kai-blue to-kai-blueLight hover:from-kai-blueLight hover:to-kai-blue text-white font-bold rounded-xl text-sm transition shadow-md shadow-kai-blue/20">Simpan</button>
+                    </div>
+                </form>
+            `);
+        }
+
+        function handleAddUser(e) {
+            e.preventDefault();
+            addUser({
+                name: document.getElementById('modal-user-name').value,
+                email: document.getElementById('modal-user-email').value,
+                role: document.getElementById('modal-user-role').value,
+                password: document.getElementById('modal-user-pass').value || 'admin123',
+                locationId: document.getElementById('modal-user-location').value || null
+            });
+        }
+
+        // =============================================
+        // EDIT USER MODAL
+        // =============================================
+        function openEditUserModal(id) {
+            const db = getDB();
+            const user = db.users.find(u => u.id === id);
+            if (!user) return;
+            editingUserId = id;
+            openModal(`
+                <h3 class="text-lg font-bold text-kai-blue mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square text-kai-orange"></i> Edit User
+                </h3>
+                <form onsubmit="handleEditUser(event)" class="space-y-3">
+                    <div>
+                        <label class="text-xs font-bold text-slate-600">Nama Lengkap <span class="text-red-500">*</span></label>
+                        <input type="text" id="modal-user-name" value="${user.name}" required
+                            class="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-kai-orange text-sm bg-slate-50/50 mt-1" />
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-600">Email <span class="text-red-500">*</span></label>
+                        <input type="email" id="modal-user-email" value="${user.email}" required
+                            class="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-kai-orange text-sm bg-slate-50/50 mt-1" />
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-xs font-bold text-slate-600">Role</label>
+                            <select id="modal-user-role" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-kai-orange text-sm bg-slate-50/50 mt-1">
+                                <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
+                                <option value="superadmin" ${user.role === 'superadmin' ? 'selected' : ''}>Superadmin</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-slate-600">Lokasi Tugas</label>
+                            <select id="modal-user-location" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-kai-orange text-sm bg-slate-50/50 mt-1">
+                                <option value="">— Pilih Lokasi —</option>
+                                ${buildLocOptions(user.locationId || '')}
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-600">Password (kosongkan jika tidak diubah)</label>
+                        <input type="text" id="modal-user-pass" placeholder="••••••"
+                            class="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-kai-orange text-sm bg-slate-50/50 mt-1" />
+                    </div>
+                    <div class="flex gap-3 pt-2">
+                        <button type="button" onclick="closeModal()" class="flex-1 py-2.5 border border-slate-200 rounded-xl text-slate-700 font-bold text-sm hover:bg-slate-50 transition">Batal</button>
+                        <button type="submit" class="flex-1 py-2.5 bg-gradient-to-r from-kai-blue to-kai-blueLight hover:from-kai-blueLight hover:to-kai-blue text-white font-bold rounded-xl text-sm transition shadow-md shadow-kai-blue/20">Update</button>
+                    </div>
+                </form>
+            `);
+        }
+
+        function handleEditUser(e) {
+            e.preventDefault();
+            const data = {
+                name: document.getElementById('modal-user-name').value,
+                email: document.getElementById('modal-user-email').value,
+                role: document.getElementById('modal-user-role').value,
+                locationId: document.getElementById('modal-user-location').value || null
+            };
+            const pass = document.getElementById('modal-user-pass').value;
+            if (pass) data.password = pass;
+            if (editingUserId) updateUser(editingUserId, data);
+        }
+
+        // =============================================
+        // TOAST
+        // =============================================
+        function showToast(message, type = 'success') {
+            const colors = {
+                success: 'bg-emerald-50 border-emerald-200 text-emerald-800',
+                error: 'bg-rose-50 border-rose-200 text-rose-800',
+                warning: 'bg-amber-50 border-amber-200 text-amber-800',
+                info: 'bg-blue-50 border-blue-200 text-blue-800'
+            };
+            const icons = {
+                success: 'fa-circle-check text-emerald-500',
+                error: 'fa-circle-xmark text-rose-500',
+                warning: 'fa-triangle-exclamation text-amber-500',
+                info: 'fa-circle-info text-blue-500'
+            };
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `flex items-start p-4 rounded-2xl border ${colors[type]} shadow-lg transition-all duration-300`;
+            toast.innerHTML = `
+                <i class="fa-solid ${icons[type]} text-lg mt-0.5 mr-3"></i>
+                <div class="flex-1"><p class="text-sm font-semibold">${message}</p></div>
+                <button class="ml-3 text-slate-400 hover:text-slate-600" onclick="this.parentElement.remove()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateX(20px)';
+                    setTimeout(() => toast.remove(), 300);
+                }
+            }, 4000);
+        }
+
+        // =============================================
+        // INIT
+        // =============================================
+        document.addEventListener('DOMContentLoaded', function () {
+            initDB();
+            const user = checkAuth();
+            if (!user) return;
+            updateSidebarNavigation();
+            renderUsersTable();
+        });
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,159 @@
+/* ============================================
+   SIVERA IV - Custom Styles
+   ============================================ */
+
+/* Font */
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #F1F5F9;
+    border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #CBD5E1;
+    border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94A3B8;
+}
+
+/* Animation for toast */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.toast {
+    animation: slideIn 0.3s ease-out;
+}
+
+/* Pulse animation for map nodes */
+@keyframes softPulse {
+
+    0%,
+    100% {
+        opacity: 0.3;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.6;
+        transform: scale(1.05);
+    }
+}
+
+.pulse-node {
+    animation: softPulse 2s ease-in-out infinite;
+}
+
+/* Smooth transition for sidebar */
+.sidebar {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Card hover effect */
+.hover-card {
+    transition: all 0.2s ease;
+}
+
+.hover-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px -8px rgba(0, 0, 0, 0.08);
+}
+
+/* Table row hover */
+.table-row-hover {
+    transition: background 0.15s ease;
+}
+
+/* Modal backdrop */
+.modal-overlay {
+    background: rgba(15, 23, 42, 0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+/* Custom status badges */
+.status-badge {
+    padding: 2px 12px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    display: inline-block;
+    letter-spacing: 0.3px;
+}
+
+.status-baik {
+    background: #DCFCE7;
+    color: #166534;
+}
+
+.status-perawatan {
+    background: #FEF3C7;
+    color: #92400E;
+}
+
+.status-rusak {
+    background: #FEE2E2;
+    color: #991B1B;
+}
+
+/* Gradient text */
+.gradient-text {
+    background: linear-gradient(135deg, #EF7D00, #D66F00);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Input focus */
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+}
+
+/* Map node hover */
+.location-node {
+    cursor: pointer;
+    transition: transform 0.15s ease;
+}
+
+.location-node:hover {
+    transform: scale(1.08);
+}
+
+.location-node.selected circle:first-child {
+    stroke: #EF7D00;
+    stroke-width: 3;
+}
+
+/* Print styles */
+@media print {
+
+    .sidebar,
+    .no-print {
+        display: none !important;
+    }
+
+    .print-only {
+        display: block !important;
+    }
+}

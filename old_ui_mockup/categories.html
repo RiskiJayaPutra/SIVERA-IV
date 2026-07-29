@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kategori Aset - SIVERA IV</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/style.css" />
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        kai: { blue: '#0D2C54', blueLight: '#1B497E', orange: '#EF7D00', orangeHover: '#D66F00' }
+                    },
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] }
+                }
+            }
+        };
+    </script>
+
+    <style>
+        .sidebar { transition: transform 0.35s cubic-bezier(0.4,0,0.2,1); }
+        .sidebar-closed { transform: translateX(-100%); }
+        .sidebar-open { transform: translateX(0); }
+        @media (min-width: 768px) { .sidebar { transform: translateX(0) !important; } }
+        .nav-active { background: #F1F5F9; color: #0D2C54; border-right: 3px solid #EF7D00; font-weight: 700; }
+        .nav-link { transition: all 0.15s ease; }
+        .nav-link:hover { background: #F8FAFC; color: #0D2C54; }
+        .modal-overlay { background: rgba(15,23,42,0.55); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+        .table-row-hover:hover { background: #F8FAFC; }
+        #sidebarBackdrop { display: none; position: fixed; inset: 0; z-index: 35; background: rgba(0,0,0,0.4); }
+        @media (max-width: 767px) { #sidebarBackdrop.show { display: block; } }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: #F1F5F9; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+        #topUserAvatar { display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:#0D2C54;color:white;font-size:12px;font-weight:700;flex-shrink:0; }
+        #topUserAvatar img { width:100%;height:100%;object-fit:cover;border-radius:50%; }
+
+        /* ===== FADE IN ===== */
+        @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeSlideIn 0.3s ease both; }
+    </style>
+</head>
+
+<body class="min-h-screen bg-slate-50 font-sans">
+
+    <div id="sidebarBackdrop" onclick="closeSidebar()"></div>
+
+    <div class="min-h-screen flex">
+        <!-- ====== SIDEBAR ====== -->
+        <aside id="sidebar"
+            class="sidebar sidebar-open fixed md:relative top-0 left-0 h-full md:h-auto w-64 bg-white border-r border-slate-200 flex flex-col z-40 shadow-xl md:shadow-none flex-shrink-0">
+
+            <div class="p-4 border-b border-slate-200 flex items-center justify-between bg-white">
+                <div class="flex items-center gap-3">
+                    <img src="logo.png" alt="Logo KAI" class="h-12 w-auto object-contain">
+                    <div>
+                        <span class="text-sm font-extrabold text-kai-blue">SIVERA IV</span>
+                        <span class="text-[9px] text-slate-400 block leading-none">Divre IV Tanjung Karang</span>
+                    </div>
+                </div>
+                <button onclick="closeSidebar()" class="md:hidden text-slate-400 hover:text-slate-600 transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <nav class="flex-1 p-3 space-y-0.5 overflow-y-auto mt-2">
+                <a href="dashboard.html" class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-800 transition gap-3">
+                    <i class="fa-solid fa-gauge text-base w-5 text-center text-slate-400"></i><span>Dashboard</span>
+                </a>
+                <a href="assets.html" class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-800 transition gap-3">
+                    <i class="fa-solid fa-server text-base w-5 text-center text-slate-400"></i><span>Data Aset</span>
+                </a>
+                <a href="locations.html" class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-800 transition gap-3">
+                    <i class="fa-solid fa-map-location-dot text-base w-5 text-center text-slate-400"></i><span>Master Lokasi</span>
+                </a>
+                <a href="categories.html" class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-medium nav-active transition gap-3">
+                    <i class="fa-solid fa-tags text-base w-5 text-center text-kai-orange"></i><span>Kategori Aset</span>
+                </a>
+                <a href="users.html" class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-800 transition gap-3">
+                    <i class="fa-solid fa-users-gear text-base w-5 text-center text-slate-400"></i><span>Manajemen User</span>
+                </a>
+                <a href="reports.html" class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-800 transition gap-3">
+                    <i class="fa-solid fa-file-invoice text-base w-5 text-center text-slate-400"></i><span>Laporan</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- ====== MAIN CONTENT ====== -->
+        <div class="flex-1 min-w-0 flex flex-col">
+            <header class="bg-white border-b border-slate-200 py-3 px-4 md:px-6 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+                <div class="flex items-center gap-3">
+                    <button onclick="openSidebar()" class="md:hidden text-slate-500 hover:text-slate-700 transition p-1.5 rounded-lg hover:bg-slate-100">
+                        <i class="fa-solid fa-bars text-lg"></i>
+                    </button>
+                    <div>
+                        <h1 class="text-sm font-extrabold text-kai-blue leading-tight">Kategori Aset</h1>
+                        <p class="text-[10px] text-slate-400 hidden sm:block" id="categoryCount">0 kategori</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <span class="text-xs px-2.5 py-1 rounded-full font-bold" id="roleBadge">Superadmin</span>
+                    <div class="relative">
+                        <button onclick="toggleUserMenu()" class="flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-slate-100 text-sm font-bold text-kai-blue">
+                            <span id="topUserAvatar">SA</span>
+                            <i class="fa-solid fa-chevron-down text-xs"></i>
+                        </button>
+                        <div id="userMenu" class="hidden absolute right-0 mt-2 w-44 bg-white rounded-xl shadow-xl border border-slate-100 p-1.5 text-sm z-50">
+                            <button onclick="openProfileModal()" class="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-50 flex items-center gap-2">
+                                <i class="fa-solid fa-user-pen w-5 text-kai-orange"></i> Profil pengguna
+                            </button>
+                            <button onclick="handleLogout()" class="w-full text-left px-3 py-2 rounded-lg hover:bg-rose-50 text-rose-600 flex items-center gap-2">
+                                <i class="fa-solid fa-right-from-bracket w-5"></i> Logout
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="p-4 md:p-6 space-y-4">
+
+                <!-- ===== ACTION BAR: TAMBAH KATEGORI ===== -->
+                <div class="flex flex-wrap items-center justify-end gap-2 fade-in">
+                    <button onclick="openAddCategoryModal()"
+                        class="flex items-center gap-1.5 px-3.5 py-2.5 text-xs font-bold text-white bg-gradient-to-r from-kai-blue to-kai-blueLight hover:from-kai-blueLight hover:to-kai-blue rounded-xl transition shadow-sm">
+                        <i class="fa-solid fa-plus text-xs"></i>
+                        <span>Tambah Kategori</span>
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden fade-in">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="bg-slate-50 border-b border-slate-200 text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                                    <th class="py-3 px-4 text-left">ID</th>
+                                    <th class="py-3 px-4 text-left">Nama Kategori</th>
+                                    <th class="py-3 px-4 text-left">Jumlah Aset</th>
+                                    <th class="py-3 px-4 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="categoriesTableBody">
+                                <!-- Rendered by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== TOAST CONTAINER ====== -->
+    <div id="toast-container" class="fixed top-4 right-4 z-[999] flex flex-col gap-2 max-w-sm w-full"></div>
+
+    <!-- ====== MODAL ====== -->
+    <div id="modalOverlay" class="fixed inset-0 modal-overlay z-[999] flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl shadow-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        // =============================================
+        // STATE
+        // =============================================
+        let editingCategoryId = null;
+
+        // =============================================
+        // SIDEBAR
+        // =============================================
+        function openSidebar() {
+            document.getElementById('sidebar').classList.remove('sidebar-closed');
+            document.getElementById('sidebar').classList.add('sidebar-open');
+            document.getElementById('sidebarBackdrop').classList.add('show');
+        }
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.add('sidebar-closed');
+            document.getElementById('sidebar').classList.remove('sidebar-open');
+            document.getElementById('sidebarBackdrop').classList.remove('show');
+        }
+
+        // =============================================
+        // RENDER CATEGORIES TABLE
+        // =============================================
+        function renderCategoriesTable() {
+            const db = getDB();
+            const tbody = document.getElementById('categoriesTableBody');
+            if (!tbody) return;
+
+            if (db.categories.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="py-12 text-center text-slate-400 text-sm">
+                            <i class="fa-solid fa-tags text-3xl block mb-2 opacity-30"></i>
+                            Belum ada kategori terdaftar
+                        </td>
+                    </tr>
+                `;
+                document.getElementById('categoryCount').textContent = '0 kategori';
+                return;
+            }
+
+            const catColors = ['#3B82F6','#10B981','#F59E0B','#EF4444','#8B5CF6','#EC4899','#06B6D4'];
+            let html = '';
+            db.categories.forEach((cat, i) => {
+                const count = db.assets.filter(a => a.category === cat.id).length;
+                const color = catColors[i % catColors.length];
+                html += `
+                    <tr class="border-b border-slate-100 table-row-hover transition">
+                        <td class="py-3 px-4 text-slate-400 text-xs font-mono">${cat.id}</td>
+                        <td class="py-3 px-4">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background:${color}"></span>
+                                <span class="font-semibold text-slate-800">${cat.name}</span>
+                            </div>
+                        </td>
+                        <td class="py-3 px-4">
+                            <span class="text-[11px] font-bold px-2.5 py-1 rounded-full" style="background:${color}20;color:${color}">${count} aset</span>
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <button onclick="openEditCategoryModal('${cat.id}')" class="text-slate-400 hover:text-kai-blue mx-1 transition" title="Edit">
+                                <i class="fa-solid fa-pen text-xs"></i>
+                            </button>
+                            <button onclick="deleteCategory('${cat.id}')" class="text-slate-400 hover:text-red-600 mx-1 transition" title="Hapus">
+                                <i class="fa-solid fa-trash text-xs"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+            document.getElementById('categoryCount').textContent = `${db.categories.length} kategori`;
+        }
+
+        // =============================================
+        // CRUD OPERATIONS
+        // =============================================
+        function addCategory(data) {
+            const db = getDB();
+            const newCat = { id: 'cat-' + Date.now(), name: data.name };
+            db.categories.push(newCat);
+            saveDB(db);
+            showToast('Kategori berhasil ditambahkan!', 'success');
+            renderCategoriesTable();
+            closeModal();
+        }
+
+        function updateCategory(id, data) {
+            const db = getDB();
+            const idx = db.categories.findIndex(c => c.id === id);
+            if (idx !== -1) {
+                db.categories[idx] = { ...db.categories[idx], ...data };
+                saveDB(db);
+                showToast('Kategori berhasil diperbarui!', 'success');
+                renderCategoriesTable();
+                closeModal();
+            }
+        }
+
+        function deleteCategory(id) {
+            const db = getDB();
+            const inUse = db.assets.some(a => a.category === id);
+            if (inUse) {
+                showToast('Kategori masih digunakan oleh aset. Hapus aset terlebih dahulu.', 'warning');
+                return;
+            }
+            if (!confirm('Yakin ingin menghapus kategori ini?')) return;
+            db.categories = db.categories.filter(c => c.id !== id);
+            saveDB(db);
+            showToast('Kategori berhasil dihapus!', 'info');
+            renderCategoriesTable();
+        }
+
+        // =============================================
+        // MODAL
+        // =============================================
+        function openModal(content) {
+            document.getElementById('modalContent').innerHTML = content;
+            document.getElementById('modalOverlay').classList.remove('hidden');
+        }
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.add('hidden');
+            editingCategoryId = null;
+        }
+
+        function openAddCategoryModal() {
+            openModal(`
+                <h3 class="text-lg font-bold text-kai-blue mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-plus-circle text-kai-orange"></i> Tambah Kategori
+                </h3>
+                <form onsubmit="handleAddCategory(event)" class="space-y-3">
+                    <div>
+                        <label class="text-xs font-bold text-slate-600">Nama Kategori <span class="text-red-500">*</span></label>
+                        <input type="text" id="modal-cat-name" required placeholder="Contoh: Router"
+                            class="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-kai-orange text-sm bg-slate-50/50 mt-1" />
+                    </div>
+                    <div class="flex gap-3 pt-2">
+                        <button type="button" onclick="closeModal()" class="flex-1 py-2.5 border border-slate-200 rounded-xl text-slate-700 font-bold text-sm hover:bg-slate-50 transition">Batal</button>
+                        <button type="submit" class="flex-1 py-2.5 bg-gradient-to-r from-kai-blue to-kai-blueLight hover:from-kai-blueLight hover:to-kai-blue text-white font-bold rounded-xl text-sm transition shadow-md shadow-kai-blue/20">Simpan</button>
+                    </div>
+                </form>
+            `);
+        }
+
+        function handleAddCategory(e) {
+            e.preventDefault();
+            addCategory({ name: document.getElementById('modal-cat-name').value });
+        }
+
+        function openEditCategoryModal(id) {
+            const db = getDB();
+            const cat = db.categories.find(c => c.id === id);
+            if (!cat) return;
+            editingCategoryId = id;
+            openModal(`
+                <h3 class="text-lg font-bold text-kai-blue mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square text-kai-orange"></i> Edit Kategori
+                </h3>
+                <form onsubmit="handleEditCategory(event)" class="space-y-3">
+                    <div>
+                        <label class="text-xs font-bold text-slate-600">Nama Kategori <span class="text-red-500">*</span></label>
+                        <input type="text" id="modal-cat-name" value="${cat.name}" required
+                            class="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-kai-orange text-sm bg-slate-50/50 mt-1" />
+                    </div>
+                    <div class="flex gap-3 pt-2">
+                        <button type="button" onclick="closeModal()" class="flex-1 py-2.5 border border-slate-200 rounded-xl text-slate-700 font-bold text-sm hover:bg-slate-50 transition">Batal</button>
+                        <button type="submit" class="flex-1 py-2.5 bg-gradient-to-r from-kai-blue to-kai-blueLight hover:from-kai-blueLight hover:to-kai-blue text-white font-bold rounded-xl text-sm transition shadow-md shadow-kai-blue/20">Update</button>
+                    </div>
+                </form>
+            `);
+        }
+
+        function handleEditCategory(e) {
+            e.preventDefault();
+            if (editingCategoryId) updateCategory(editingCategoryId, { name: document.getElementById('modal-cat-name').value });
+        }
+
+        // =============================================
+        // TOAST
+        // =============================================
+        function showToast(message, type = 'success') {
+            const colors = {
+                success: 'bg-emerald-50 border-emerald-200 text-emerald-800',
+                error: 'bg-rose-50 border-rose-200 text-rose-800',
+                warning: 'bg-amber-50 border-amber-200 text-amber-800',
+                info: 'bg-blue-50 border-blue-200 text-blue-800'
+            };
+            const icons = {
+                success: 'fa-circle-check text-emerald-500',
+                error: 'fa-circle-xmark text-rose-500',
+                warning: 'fa-triangle-exclamation text-amber-500',
+                info: 'fa-circle-info text-blue-500'
+            };
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `flex items-start p-4 rounded-2xl border ${colors[type]} shadow-lg transition-all duration-300`;
+            toast.innerHTML = `
+                <i class="fa-solid ${icons[type]} text-lg mt-0.5 mr-3"></i>
+                <div class="flex-1"><p class="text-sm font-semibold">${message}</p></div>
+                <button class="ml-3 text-slate-400 hover:text-slate-600" onclick="this.parentElement.remove()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateX(20px)';
+                    setTimeout(() => toast.remove(), 300);
+                }
+            }, 4000);
+        }
+
+        // =============================================
+        // INIT
+        // =============================================
+        document.addEventListener('DOMContentLoaded', function () {
+            initDB();
+            const user = checkAuth();
+            if (!user) return;
+            updateSidebarNavigation();
+            renderCategoriesTable();
+        });
+    </script>
+
+</body>
+
+</html>

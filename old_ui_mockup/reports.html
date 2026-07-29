@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Laporan - SIVERA IV</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/style.css" />
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        kai: { blue: '#0D2C54', blueLight: '#1B497E', orange: '#EF7D00', orangeHover: '#D66F00' }
+                    },
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] }
+                }
+            }
+        };
+    </script>
+
+    <style>
+        .sidebar { transition: transform 0.35s cubic-bezier(0.4,0,0.2,1); }
+        .sidebar-closed { transform: translateX(-100%); }
+        .sidebar-open { transform: translateX(0); }
+        @media (min-width: 768px) { .sidebar { transform: translateX(0) !important; } }
+        .nav-active { background: #F1F5F9; color: #0D2C54; border-right: 3px solid #EF7D00; font-weight: 700; }
+        .nav-link { transition: all 0.15s ease; }
+        .nav-link:hover { background: #F8FAFC; color: #0D2C54; }
+        .modal-overlay { background: rgba(15,23,42,0.55); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+        .table-row-hover:hover { background: #F8FAFC; }
+        #sidebarBackdrop { display: none; position: fixed; inset: 0; z-index: 35; background: rgba(0,0,0,0.4); }
+        @media (max-width: 767px) { #sidebarBackdrop.show { display: block; } }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: #F1F5F9; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+        #topUserAvatar { display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:#0D2C54;color:white;font-size:12px;font-weight:700;flex-shrink:0; }
+        #topUserAvatar img { width:100%;height:100%;object-fit:cover;border-radius:50%; }
+
+        /* ===== FADE IN ===== */
+        @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeSlideIn 0.3s ease both; }
+    </style>
+</head>
+
+<body class="min-h-screen bg-slate-50 font-sans">
+
+    <div id="sidebarBackdrop" onclick="closeSidebar()"></div>
+
+    <div class="min-h-screen flex">
+        <!-- ====== SIDEBAR ====== -->
+        <aside id="sidebar"
+            class="sidebar sidebar-open fixed md:relative top-0 left-0 h-full md:h-auto w-64 bg-white border-r border-slate-200 flex flex-col z-40 shadow-xl md:shadow-none flex-shrink-0">
+
+            <div class="p-4 border-b border-slate-200 flex items-center justify-between bg-white">
+                <div class="flex items-center gap-3">
+                    <img src="logo.png" alt="Logo KAI" class="h-12 w-auto object-contain">
+                    <div>
+                        <span class="text-sm font-extrabold text-kai-blue">SIVERA IV</span>
+                        <span class="text-[9px] text-slate-400 block leading-none">Divre IV Tanjung Karang</span>
+                    </div>
+                </div>
+                <button onclick="closeSidebar()" class="md:hidden text-slate-400 hover:text-slate-600 transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <nav class="flex-1 p-3 space-y-0.5 overflow-y-auto mt-2">
+                <a href="dashboard.html" class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-800 transition gap-3">
+                    <i class="fa-solid fa-gauge text-base w-5 text-center text-slate-400"></i><span>Dashboard</span>
+                </a>
+                <a href="assets.html" class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-800 transition gap-3">
+                    <i class="fa-solid fa-server text-base w-5 text-center text-slate-400"></i><span>Data Aset</span>
+                </a>
+                <a href="locations.html" class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-800 transition gap-3">
+                    <i class="fa-solid fa-map-location-dot text-base w-5 text-center text-slate-400"></i><span>Master Lokasi</span>
+                </a>
+                <a href="categories.html" class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-800 transition gap-3">
+                    <i class="fa-solid fa-tags text-base w-5 text-center text-slate-400"></i><span>Kategori Aset</span>
+                </a>
+                <a href="users.html" class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-800 transition gap-3">
+                    <i class="fa-solid fa-users-gear text-base w-5 text-center text-slate-400"></i><span>Manajemen User</span>
+                </a>
+                <a href="reports.html" class="nav-link flex items-center px-3 py-2.5 rounded-xl text-sm font-medium nav-active transition gap-3">
+                    <i class="fa-solid fa-file-invoice text-base w-5 text-center text-kai-orange"></i><span>Laporan</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- ====== MAIN CONTENT ====== -->
+        <div class="flex-1 min-w-0 flex flex-col">
+            <header class="bg-white border-b border-slate-200 py-3 px-4 md:px-6 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+                <div class="flex items-center gap-3">
+                    <button onclick="openSidebar()" class="md:hidden text-slate-500 hover:text-slate-700 transition p-1.5 rounded-lg hover:bg-slate-100">
+                        <i class="fa-solid fa-bars text-lg"></i>
+                    </button>
+                    <div>
+                        <h1 class="text-sm font-extrabold text-kai-blue leading-tight">Laporan & Ekspor Data</h1>
+                        <p class="text-[10px] text-slate-400 hidden sm:block">Ringkasan inventaris seluruh wilayah</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <span class="text-xs px-2.5 py-1 rounded-full font-bold" id="roleBadge">Superadmin</span>
+                    <div class="relative">
+                        <button onclick="toggleUserMenu()" class="flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-slate-100 text-sm font-bold text-kai-blue">
+                            <span id="topUserAvatar">SA</span>
+                            <i class="fa-solid fa-chevron-down text-xs"></i>
+                        </button>
+                        <div id="userMenu" class="hidden absolute right-0 mt-2 w-44 bg-white rounded-xl shadow-xl border border-slate-100 p-1.5 text-sm z-50">
+                            <button onclick="openProfileModal()" class="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-50 flex items-center gap-2">
+                                <i class="fa-solid fa-user-pen w-5 text-kai-orange"></i> Profil pengguna
+                            </button>
+                            <button onclick="handleLogout()" class="w-full text-left px-3 py-2 rounded-lg hover:bg-rose-50 text-rose-600 flex items-center gap-2">
+                                <i class="fa-solid fa-right-from-bracket w-5"></i> Logout
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="p-4 md:p-6 space-y-6">
+
+                <!-- ===== ACTION BAR: EKSPOR CSV ===== -->
+                <div class="flex flex-wrap items-center justify-end gap-2 fade-in">
+                    <button onclick="exportReport()"
+                        class="flex items-center gap-1.5 px-3.5 py-2.5 text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 rounded-xl transition shadow-sm shadow-emerald-500/20">
+                        <i class="fa-solid fa-file-excel text-xs"></i>
+                        <span>Ekspor CSV</span>
+                    </button>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 fade-in">
+                    <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+                        <div class="flex items-center gap-2 mb-1">
+                            <i class="fa-solid fa-server text-kai-blue text-sm"></i>
+                            <p class="text-xs text-slate-400 font-semibold">Total Aset</p>
+                        </div>
+                        <p class="text-2xl font-extrabold text-kai-blue" id="totalAssets">0</p>
+                    </div>
+                    <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+                        <div class="flex items-center gap-2 mb-1">
+                            <i class="fa-solid fa-map-location-dot text-emerald-500 text-sm"></i>
+                            <p class="text-xs text-slate-400 font-semibold">Lokasi</p>
+                        </div>
+                        <p class="text-2xl font-extrabold text-kai-blue" id="totalLocations">0</p>
+                    </div>
+                    <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+                        <div class="flex items-center gap-2 mb-1">
+                            <i class="fa-solid fa-tags text-amber-500 text-sm"></i>
+                            <p class="text-xs text-slate-400 font-semibold">Kategori</p>
+                        </div>
+                        <p class="text-2xl font-extrabold text-kai-blue" id="totalCategories">0</p>
+                    </div>
+                    <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+                        <div class="flex items-center gap-2 mb-1">
+                            <i class="fa-solid fa-users text-purple-500 text-sm"></i>
+                            <p class="text-xs text-slate-400 font-semibold">User</p>
+                        </div>
+                        <p class="text-2xl font-extrabold text-kai-blue" id="totalUsers">0</p>
+                    </div>
+                </div>
+
+                <!-- Status Summary -->
+                <div class="grid grid-cols-3 gap-4 fade-in">
+                    <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
+                            <i class="fa-solid fa-circle-check text-emerald-600"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-emerald-600 font-bold">Kondisi Baik</p>
+                            <p class="text-xl font-extrabold text-emerald-700" id="statBaik">0</p>
+                        </div>
+                    </div>
+                    <div class="bg-amber-50 border border-amber-100 rounded-2xl p-4 flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
+                            <i class="fa-solid fa-wrench text-amber-600"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-amber-600 font-bold">Perawatan</p>
+                            <p class="text-xl font-extrabold text-amber-700" id="statPerawatan">0</p>
+                        </div>
+                    </div>
+                    <div class="bg-rose-50 border border-rose-100 rounded-2xl p-4 flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-rose-100 flex items-center justify-center">
+                            <i class="fa-solid fa-circle-xmark text-rose-600"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-rose-600 font-bold">Rusak</p>
+                            <p class="text-xl font-extrabold text-rose-700" id="statRusak">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filter -->
+                <div class="flex flex-wrap gap-2 items-center fade-in">
+                    <span class="text-xs font-bold text-slate-500">Filter:</span>
+                    <select id="filterStatus" onchange="renderReportTable()" class="text-xs px-3 py-2 rounded-xl border border-slate-200 bg-white focus:ring-2 focus:ring-kai-orange">
+                        <option value="">Semua Status</option>
+                        <option value="Baik">Baik</option>
+                        <option value="Perawatan">Perawatan</option>
+                        <option value="Rusak">Rusak</option>
+                    </select>
+                    <select id="filterLocation" onchange="renderReportTable()" class="text-xs px-3 py-2 rounded-xl border border-slate-200 bg-white focus:ring-2 focus:ring-kai-orange">
+                        <option value="">Semua Lokasi</option>
+                    </select>
+                </div>
+
+                <!-- Report Table -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden fade-in">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="bg-slate-50 border-b border-slate-200 text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                                    <th class="py-3 px-4 text-left">Nama Aset</th>
+                                    <th class="py-3 px-4 text-left">Kategori</th>
+                                    <th class="py-3 px-4 text-left">IP Address</th>
+                                    <th class="py-3 px-4 text-left">Lokasi</th>
+                                    <th class="py-3 px-4 text-left">Status</th>
+                                    <th class="py-3 px-4 text-left">Maintenance</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reportTableBody">
+                                <!-- Rendered by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== TOAST CONTAINER ====== -->
+    <div id="toast-container" class="fixed top-4 right-4 z-[999] flex flex-col gap-2 max-w-sm w-full"></div>
+
+    <!-- ====== MODAL ====== -->
+    <div id="modalOverlay" class="fixed inset-0 modal-overlay z-[999] flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto modal-box">
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        // =============================================
+        // SIDEBAR
+        // =============================================
+        function openSidebar() {
+            document.getElementById('sidebar').classList.remove('sidebar-closed');
+            document.getElementById('sidebar').classList.add('sidebar-open');
+            document.getElementById('sidebarBackdrop').classList.add('show');
+        }
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.add('sidebar-closed');
+            document.getElementById('sidebar').classList.remove('sidebar-open');
+            document.getElementById('sidebarBackdrop').classList.remove('show');
+        }
+
+        // =============================================
+        // RENDER REPORT TABLE
+        // =============================================
+        function renderReportTable() {
+            const db = getDB();
+            const tbody = document.getElementById('reportTableBody');
+            if (!tbody) return;
+
+            const filterStatus = document.getElementById('filterStatus')?.value || '';
+            const filterLocation = document.getElementById('filterLocation')?.value || '';
+
+            let assets = db.assets;
+            if (filterStatus) assets = assets.filter(a => a.status === filterStatus);
+            if (filterLocation) assets = assets.filter(a => a.locationId === filterLocation);
+
+            if (assets.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="py-12 text-center text-slate-400 text-sm">
+                            <i class="fa-solid fa-file-lines text-3xl block mb-2 opacity-30"></i>
+                            Tidak ada data yang sesuai filter
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            let html = '';
+            assets.forEach(a => {
+                const loc = db.locations.find(l => l.id === a.locationId);
+                const cat = db.categories.find(c => c.id === a.category);
+                const statusMap = { Baik: 'status-baik', Perawatan: 'status-perawatan', Rusak: 'status-rusak' };
+                
+                let locLabel = '-';
+                if (loc) {
+                    if (loc.type === 'unit' && loc.parentId) {
+                        const parent = db.locations.find(p => p.id === loc.parentId);
+                        locLabel = parent ? `${parent.name.replace('Stasiun ', '')} › ${loc.name}` : loc.name;
+                    } else {
+                        locLabel = loc.name;
+                    }
+                }
+
+                html += `
+                    <tr class="border-b border-slate-100 table-row-hover transition">
+                        <td class="py-2.5 px-4 font-semibold text-slate-800">${a.name}</td>
+                        <td class="py-2.5 px-4 text-slate-600">${cat ? cat.name : a.category}</td>
+                        <td class="py-2.5 px-4 text-slate-500 font-mono text-xs">${a.ip || '-'}</td>
+                        <td class="py-2.5 px-4 text-slate-600">${locLabel}</td>
+                        <td class="py-2.5 px-4"><span class="${statusMap[a.status] || 'status-baik'} status-badge">${a.status}</span></td>
+                        <td class="py-2.5 px-4 text-slate-500 text-xs">${formatDateShort(a.lastMaintenance)}</td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        // =============================================
+        // UPDATE STATS
+        // =============================================
+        function updateStats() {
+            const db = getDB();
+            document.getElementById('totalAssets').textContent = db.assets.length;
+            document.getElementById('totalLocations').textContent = db.locations.length;
+            document.getElementById('totalCategories').textContent = db.categories.length;
+            document.getElementById('totalUsers').textContent = db.users.length;
+            document.getElementById('statBaik').textContent = db.assets.filter(a => a.status === 'Baik').length;
+            document.getElementById('statPerawatan').textContent = db.assets.filter(a => a.status === 'Perawatan').length;
+            document.getElementById('statRusak').textContent = db.assets.filter(a => a.status === 'Rusak').length;
+
+            // Populate location filter
+            const filterLoc = document.getElementById('filterLocation');
+            if (filterLoc) {
+                filterLoc.innerHTML = '<option value="">Semua Lokasi</option>';
+                db.locations.forEach(l => {
+                    const opt = document.createElement('option');
+                    opt.value = l.id;
+                    opt.textContent = l.name;
+                    filterLoc.appendChild(opt);
+                });
+            }
+        }
+
+        // =============================================
+        // EXPORT REPORT
+        // =============================================
+        function exportReport() {
+            const db = getDB();
+            if (db.assets.length === 0) {
+                showToast('Tidak ada data untuk diekspor!', 'warning');
+                return;
+            }
+
+            let csv = 'Nama Aset,Kategori,IP Address,MAC Address,Lokasi,Status,Maintenance Terakhir\n';
+            db.assets.forEach(a => {
+                const loc = db.locations.find(l => l.id === a.locationId);
+                const cat = db.categories.find(c => c.id === a.category);
+                csv += `"${a.name}","${cat ? cat.name : a.category}","${a.ip}","${a.mac}","${loc ? loc.name : '-'}","${a.status}","${formatDateShort(a.lastMaintenance)}"\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `sivera-iv-laporan-${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+            URL.revokeObjectURL(link.href);
+
+            showToast(`Laporan berhasil diekspor! ${db.assets.length} aset`, 'success');
+        }
+
+        // =============================================
+        // TOAST
+        // =============================================
+        function showToast(message, type = 'success') {
+            const colors = {
+                success: 'bg-emerald-50 border-emerald-200 text-emerald-800',
+                error: 'bg-rose-50 border-rose-200 text-rose-800',
+                warning: 'bg-amber-50 border-amber-200 text-amber-800',
+                info: 'bg-blue-50 border-blue-200 text-blue-800'
+            };
+            const icons = {
+                success: 'fa-circle-check text-emerald-500',
+                error: 'fa-circle-xmark text-rose-500',
+                warning: 'fa-triangle-exclamation text-amber-500',
+                info: 'fa-circle-info text-blue-500'
+            };
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `flex items-start p-4 rounded-2xl border ${colors[type]} shadow-lg transition-all duration-300`;
+            toast.innerHTML = `
+                <i class="fa-solid ${icons[type]} text-lg mt-0.5 mr-3"></i>
+                <div class="flex-1"><p class="text-sm font-semibold">${message}</p></div>
+                <button class="ml-3 text-slate-400 hover:text-slate-600" onclick="this.parentElement.remove()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateX(20px)';
+                    setTimeout(() => toast.remove(), 300);
+                }
+            }, 4000);
+        }
+
+        // =============================================
+        // INIT
+        // =============================================
+        document.addEventListener('DOMContentLoaded', function () {
+            initDB();
+            const user = checkAuth();
+            if (!user) return;
+            updateSidebarNavigation();
+            updateStats();
+            renderReportTable();
+        });
+    </script>
+
+</body>
+
+</html>
