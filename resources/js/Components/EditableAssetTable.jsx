@@ -147,6 +147,76 @@ export default function EditableAssetTable({
 
     // Update cell value
     const handleCellChange = (globalIdx, key, value) => {
+        setEditData(prev => {
+            const updated = [...prev];
+            updated[globalIdx] = { ...updated[globalIdx], [key]: value };
+            return updated;
+        });
+    };
+
+    // Save all changes
+    const handleSave = () => {
+        setSaving(true);
+        const rows = editData.map(row => {
+            const cleanRow = {};
+            const processedKeys = new Set();
+            dataColumns.forEach(col => {
+                if (col.key === '_no' || col.key === '_actions') return;
+                if (col.type === 'group') {
+                    (col.subColumns || []).filter(sc => sc.type !== 'display').forEach(subCol => {
+                        const dbKey = subCol.radioGroupKey || subCol.key;
+                        if (processedKeys.has(dbKey)) return;
+                        processedKeys.add(dbKey);
+                        cleanRow[dbKey] = row[dbKey] ?? null;
+                    });
+                    return;
+                }
+                // Location ID specifically for global mode
+                if (isGlobalMode && col.type === 'location_select') {
+                    cleanRow.location_id = row[col.key] || null;
+                    return;
+                }
+                // For radio columns, use the actual DB key (radioGroupKey) and skip virtual keys
+                const dbKey = col.radioGroupKey || col.key;
+                if (processedKeys.has(dbKey)) return;
+                processedKeys.add(dbKey);
+                cleanRow[dbKey] = row[dbKey] ?? null;
+            });
+            if (row.id && !row._isNew) cleanRow.id = row.id;
+            if (isGlobalMode) cleanRow._isNew = row._isNew; // pass _isNew for globalBatchSave logic
+            return cleanRow;
+        });
+
+        const postUrl = isGlobalMode ? route(batchRoute) : route(batchRoute, locationId);
+        
+        axios.post(postUrl, {
+            rows,
+            deleted: deletedIds,
+            asset_type_id: assetTypeId
+        }).then(response => {
+            setSaving(false);
+            setIsEditing(false);
+            setDeletedIds([]);
+            setActiveCell(null);
+            Swal.fire({
+                icon: 'success',
+                title: 'Tersimpan',
+                text: 'Perubahan data berhasil disimpan.',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000
+            });
+            // Reload data entirely to get new IDs, update totals, and re-sync filters
+            router.reload({ preserveScroll: true, preserveState: true });
+        }).catch(error => {
+            setSaving(false);
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal Menyimpan',
+                text: 'Terjadi kesalahan saat menyimpan data.'
+            });
+        });
     };
 
     // Render cell content in view mode
