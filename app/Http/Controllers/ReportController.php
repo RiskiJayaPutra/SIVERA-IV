@@ -99,9 +99,12 @@ class ReportController extends Controller
             $categories = AssetType::pluck('id')->toArray();
         }
 
+        $format = $request->input('format', 'combined');
+        $showEmptyLocations = filter_var($request->input('show_empty', false), FILTER_VALIDATE_BOOLEAN);
+
         $fileName = 'Laporan_Aset_SIVERA_' . date('Ymd_His') . '.xlsx';
 
-        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\MultiSheetAssetExport($categories, $locations), $fileName);
+        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\MultiSheetAssetExport($categories, $locations, $format, $showEmptyLocations), $fileName);
     }
 
     public function previewExport(Request $request)
@@ -152,10 +155,14 @@ class ReportController extends Controller
                 ];
             });
 
+        $format = $request->input('format', 'combined');
+        $formatDesc = $format === 'grouped' ? 'Tabel Dipisah per Lokasi' : 'Tabel Gabungan';
+
         return response()->json([
             'total' => $totalData,
             'categories' => $byCategory,
-            'locations' => $byLocation
+            'locations' => $byLocation,
+            'format_desc' => $formatDesc
         ]);
     }
 }

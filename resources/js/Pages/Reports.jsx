@@ -18,6 +18,8 @@ export default function Reports({ stats, assetTypes = [], locations = [], assets
         const locs = params.get('locations');
         return locs ? locs.split(',').map(Number) : [];
     });
+    const [exportFormat, setExportFormat] = useState('combined');
+    const [showEmptyLocations, setShowEmptyLocations] = useState(false);
     const [previewData, setPreviewData] = useState(null);
     const [isPreviewLoading, setIsPreviewLoading] = useState(false);
     
@@ -28,10 +30,13 @@ export default function Reports({ stats, assetTypes = [], locations = [], assets
     useEffect(() => {
         // Fetch Preview Data
         setIsPreviewLoading(true);
-        axios.post(route('reports.preview'), {
-            categories: exportCategories,
-            locations: exportLocations
-        }).then(res => {
+        const payload = { 
+            categories: exportCategories, 
+            locations: exportLocations,
+            format: exportFormat,
+            show_empty: showEmptyLocations
+        };
+        axios.post(route('reports.preview'), payload).then(res => {
             setPreviewData(res.data);
             setIsPreviewLoading(false);
         }).catch(err => {
@@ -213,151 +218,222 @@ export default function Reports({ stats, assetTypes = [], locations = [], assets
                     <i className="fa-solid fa-file-export text-kai-orange"></i> Advanced Export Laporan
                 </h3>
                 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {/* Categories Filter */}
-                    <div className="border border-slate-100 rounded-xl p-4 bg-slate-50/50">
-                        <div className="flex justify-between items-center mb-3">
-                            <h4 className="font-semibold text-slate-700 text-sm">Filter Kategori Aset</h4>
-                            <button 
-                                onClick={() => setExportCategories([])}
-                                className="text-xs text-kai-blue hover:underline font-semibold"
-                            >
-                                Reset (Semua)
-                            </button>
-                        </div>
-                        <div className="space-y-1 max-h-48 overflow-y-auto custom-scrollbar px-1 py-1">
-                            {assetTypes.map(type => (
-                                <label key={type.id} className="flex items-center gap-2 cursor-pointer group p-1 rounded hover:bg-slate-50 transition">
-                                    <input 
-                                        type="checkbox" 
-                                        checked={exportCategories.includes(type.id)}
-                                        onChange={() => handleCategoryToggle(type.id)}
-                                        className="rounded text-kai-blue focus:ring-kai-blue border-slate-300 w-4 h-4 shrink-0 cursor-pointer"
-                                    />
-                                    <span className="text-sm text-slate-600 group-hover:text-kai-blue transition">{type.name}</span>
-                                </label>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Locations Filter */}
-                    <div className="border border-slate-100 rounded-xl p-4 bg-slate-50/50">
-                        <div className="flex justify-between items-center mb-3">
-                            <h4 className="font-semibold text-slate-700 text-sm">Filter Lokasi</h4>
-                            {auth?.user?.role !== 'Admin Lokasi' && (
-                                <button 
-                                    onClick={handleClearLocations}
-                                    className="text-xs text-kai-blue hover:underline font-semibold"
-                                >
-                                    Reset (Semua)
-                                </button>
-                            )}
-                        </div>
-                        
-                        {auth?.user?.role === 'Admin Lokasi' ? (
-                            <div className="text-xs font-semibold text-slate-500 bg-white p-3 rounded-lg border border-slate-200">
-                                Otorisasi Lokasi: Terbatas pada wilayah Anda.
-                            </div>
-                        ) : (
-                            <>
-                                <button
-                                    type="button"
-                                    onClick={() => setShowLocDropdown(true)}
-                                    className="w-full bg-white border border-slate-200 rounded-lg text-sm py-2 px-3 hover:border-kai-blue focus:ring-2 focus:ring-kai-blue text-left flex items-center justify-between transition"
-                                >
-                                    <span className="text-slate-600 truncate">
-                                        {exportLocations.length === 0 
-                                            ? 'Pilih Wilayah (Semua)' 
-                                            : `${exportLocations.length} Wilayah Dipilih`}
-                                    </span>
-                                    <i className="fa-solid fa-chevron-down text-slate-400 text-xs"></i>
-                                </button>
-                                
-                                <Modal show={showLocDropdown} onClose={() => setShowLocDropdown(false)} maxWidth="2xl">
-                                    <div className="p-6">
-                                        <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
-                                            <h2 className="text-lg font-bold text-slate-800">Pilih Wilayah (Lokasi)</h2>
-                                            <button onClick={() => setShowLocDropdown(false)} className="text-slate-400 hover:text-slate-600 transition">
-                                                <i className="fa-solid fa-xmark text-xl"></i>
-                                            </button>
-                                        </div>
-                                        
-                                        <div className="mb-4 relative">
-                                            <i className="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    {/* Filters & Options Column */}
+                    <div className="xl:col-span-2 space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Categories Filter */}
+                            <div className="border border-slate-100 rounded-xl p-4 bg-slate-50/50">
+                                <div className="flex justify-between items-center mb-3">
+                                    <h4 className="font-semibold text-slate-700 text-sm">Filter Kategori Aset</h4>
+                                    <button 
+                                        onClick={() => setExportCategories([])}
+                                        className="text-xs text-kai-blue hover:underline font-semibold"
+                                    >
+                                        Reset (Semua)
+                                    </button>
+                                </div>
+                                <div className="space-y-1 max-h-48 overflow-y-auto custom-scrollbar px-1 py-1">
+                                    {assetTypes.map(type => (
+                                        <label key={type.id} className="flex items-center gap-2 cursor-pointer group p-1 rounded hover:bg-slate-50 transition">
                                             <input 
-                                                type="text" 
-                                                placeholder="Cari wilayah..." 
-                                                value={modalSearch}
-                                                onChange={(e) => setModalSearch(e.target.value)}
-                                                className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-kai-blue transition"
+                                                type="checkbox" 
+                                                checked={exportCategories.includes(type.id)}
+                                                onChange={() => handleCategoryToggle(type.id)}
+                                                className="rounded text-kai-blue focus:ring-kai-blue border-slate-300 w-4 h-4 shrink-0 cursor-pointer"
                                             />
-                                        </div>
-                                        
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 max-h-[50vh] overflow-y-auto custom-scrollbar pr-2">
-                                            {locations.filter(loc => loc.name.toLowerCase().includes(modalSearch.toLowerCase())).map(loc => {
-                                                const isChecked = exportLocations.includes(loc.id);
-                                                return (
-                                                    <label 
-                                                        key={loc.id} 
-                                                        className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition border ${isChecked ? 'border-kai-blue bg-blue-50' : 'border-transparent hover:bg-slate-50'}`}
-                                                    >
-                                                        <input 
-                                                            type="checkbox"
-                                                            checked={isChecked}
-                                                            onChange={() => handleLocationToggle(loc.id)}
-                                                            className="rounded text-kai-blue focus:ring-kai-blue border-slate-300 w-4 h-4 shrink-0 cursor-pointer"
-                                                        />
-                                                        <span className="text-sm font-semibold text-slate-700 truncate" title={loc.name}>{loc.name}</span>
-                                                    </label>
-                                                );
-                                            })}
-                                        </div>
-                                        
-                                        <div className="flex items-center justify-between mt-6 pt-4 border-t border-slate-100">
-                                            <button 
-                                                onClick={handleClearLocations}
-                                                className="text-sm text-rose-500 hover:text-rose-600 font-bold px-3 py-2 rounded-lg hover:bg-rose-50 transition"
-                                            >
-                                                Bersihkan Pilihan
-                                            </button>
-                                            <button
-                                                onClick={() => setShowLocDropdown(false)}
-                                                className="bg-kai-blue text-white px-5 py-2 rounded-lg text-sm font-bold shadow-md hover:bg-blue-700 transition"
-                                            >
-                                                Terapkan
-                                            </button>
-                                        </div>
-                                    </div>
-                                </Modal>
-                            </>
-                        )}
-                    </div>
-
-                    {/* Preview & Action */}
-                    <div className="border border-slate-100 rounded-xl p-4 bg-slate-800 text-white flex flex-col relative overflow-hidden">
-                        <div className="absolute -right-4 -top-4 w-32 h-32 bg-white/5 rounded-full"></div>
-                        <h4 className="font-semibold text-slate-200 text-sm mb-4 relative z-10">Preview Laporan</h4>
-                        
-                        {isPreviewLoading ? (
-                            <div className="flex-1 flex items-center justify-center relative z-10">
-                                <i className="fa-solid fa-spinner fa-spin text-2xl text-kai-orange"></i>
+                                            <span className="text-sm text-slate-600 group-hover:text-kai-blue transition">{type.name}</span>
+                                        </label>
+                                    ))}
+                                </div>
                             </div>
-                        ) : (
-                            <div className="flex-1 relative z-10">
-                                <div className="mb-4">
-                                    <p className="text-xs text-slate-400 mb-1">Total Data Ekspor</p>
-                                    <p className="text-3xl font-black text-white">{previewData?.total || 0} <span className="text-sm font-normal text-slate-300">Aset</span></p>
+
+                            {/* Locations Filter */}
+                            <div className="border border-slate-100 rounded-xl p-4 bg-slate-50/50">
+                                <div className="flex justify-between items-center mb-3">
+                                    <h4 className="font-semibold text-slate-700 text-sm">Filter Lokasi</h4>
+                                    {auth?.user?.role !== 'Admin Lokasi' && (
+                                        <button 
+                                            onClick={handleClearLocations}
+                                            className="text-xs text-kai-blue hover:underline font-semibold"
+                                        >
+                                            Reset (Semua)
+                                        </button>
+                                    )}
                                 </div>
                                 
-                                {previewData?.categories?.length > 0 && (
-                                    <div className="flex flex-wrap gap-2 mb-4">
-                                        {previewData.categories.map(c => (
-                                            <span key={c.name} className="px-2 py-1 rounded bg-white/10 text-xs font-semibold">
-                                                {c.name}: {c.count}
-                                            </span>
-                                        ))}
+                                {auth?.user?.role === 'Admin Lokasi' ? (
+                                    <div className="text-xs font-semibold text-slate-500 bg-white p-3 rounded-lg border border-slate-200">
+                                        Otorisasi Lokasi: Terbatas pada wilayah Anda.
                                     </div>
+                                ) : (
+                                    <>
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowLocDropdown(true)}
+                                            className="w-full bg-white border border-slate-200 rounded-lg text-sm py-2 px-3 hover:border-kai-blue focus:ring-2 focus:ring-kai-blue text-left flex items-center justify-between transition"
+                                        >
+                                            <span className="text-slate-600 truncate">
+                                                {exportLocations.length === 0 
+                                                    ? 'Pilih Wilayah (Semua)' 
+                                                    : `${exportLocations.length} Wilayah Dipilih`}
+                                            </span>
+                                            <i className="fa-solid fa-chevron-down text-slate-400 text-xs"></i>
+                                        </button>
+                                        
+                                        <Modal show={showLocDropdown} onClose={() => setShowLocDropdown(false)} maxWidth="2xl">
+                                            <div className="p-6">
+                                                <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                                                    <h2 className="text-lg font-bold text-slate-800">Pilih Wilayah (Lokasi)</h2>
+                                                    <button onClick={() => setShowLocDropdown(false)} className="text-slate-400 hover:text-slate-600 transition">
+                                                        <i className="fa-solid fa-xmark text-xl"></i>
+                                                    </button>
+                                                </div>
+                                                
+                                                <div className="mb-4 relative">
+                                                    <i className="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                                                    <input 
+                                                        type="text" 
+                                                        placeholder="Cari wilayah..." 
+                                                        value={modalSearch}
+                                                        onChange={(e) => setModalSearch(e.target.value)}
+                                                        className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-kai-blue transition"
+                                                    />
+                                                </div>
+                                                
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 max-h-[50vh] overflow-y-auto custom-scrollbar pr-2">
+                                                    {locations.filter(loc => loc.name.toLowerCase().includes(modalSearch.toLowerCase())).map(loc => {
+                                                        const isChecked = exportLocations.includes(loc.id);
+                                                        return (
+                                                            <label 
+                                                                key={loc.id} 
+                                                                className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition border ${isChecked ? 'border-kai-blue bg-blue-50' : 'border-transparent hover:bg-slate-50'}`}
+                                                            >
+                                                                <input 
+                                                                    type="checkbox"
+                                                                    checked={isChecked}
+                                                                    onChange={() => handleLocationToggle(loc.id)}
+                                                                    className="rounded text-kai-blue focus:ring-kai-blue border-slate-300 w-4 h-4 shrink-0 cursor-pointer"
+                                                                />
+                                                                <span className="text-sm font-semibold text-slate-700 truncate" title={loc.name}>{loc.name}</span>
+                                                            </label>
+                                                        );
+                                                    })}
+                                                </div>
+                                                
+                                                <div className="flex items-center justify-between mt-6 pt-4 border-t border-slate-100">
+                                                    <button 
+                                                        onClick={handleClearLocations}
+                                                        className="text-sm text-rose-500 hover:text-rose-600 font-bold px-3 py-2 rounded-lg hover:bg-rose-50 transition"
+                                                    >
+                                                        Bersihkan Pilihan
+                                                    </button>
+                                                    <button
+                                                        onClick={() => setShowLocDropdown(false)}
+                                                        className="bg-kai-blue text-white px-5 py-2 rounded-lg text-sm font-bold shadow-md hover:bg-blue-700 transition"
+                                                    >
+                                                        Terapkan
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </Modal>
+                                    </>
                                 )}
+                            </div>
+                        </div>
+
+                        {/* Format Export */}
+                        <div className="border border-slate-100 rounded-xl p-5 bg-slate-50/50">
+                            <h4 className="font-semibold text-slate-700 text-sm mb-4">Pengaturan Format Laporan Excel</h4>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <label className={`relative flex flex-col p-4 cursor-pointer rounded-xl border-2 transition-all ${exportFormat === 'combined' ? 'border-kai-blue bg-blue-50/30 shadow-sm' : 'border-slate-200 hover:border-slate-300 bg-white'}`}>
+                                    <input type="radio" name="exportFormat" value="combined" checked={exportFormat === 'combined'} onChange={(e) => setExportFormat(e.target.value)} className="sr-only" />
+                                    <div className="flex items-center justify-between mb-1">
+                                        <div className="flex items-center gap-2">
+                                            <i className={`fa-solid fa-table-cells-large ${exportFormat === 'combined' ? 'text-kai-blue' : 'text-slate-400'}`}></i>
+                                            <span className="font-bold text-slate-800 text-sm">Tabel Gabungan</span>
+                                        </div>
+                                        <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${exportFormat === 'combined' ? 'border-kai-blue' : 'border-slate-300'}`}>
+                                            {exportFormat === 'combined' && <div className="w-2 h-2 rounded-full bg-kai-blue"></div>}
+                                        </div>
+                                    </div>
+                                    <p className="text-xs text-slate-500 ml-6">Seluruh aset digabung dalam 1 sheet. Ideal untuk <span className="font-semibold text-slate-700">Pivot Table / Analisis</span>.</p>
+                                </label>
+
+                                <label className={`relative flex flex-col p-4 cursor-pointer rounded-xl border-2 transition-all ${exportFormat === 'grouped' ? 'border-kai-blue bg-blue-50/30 shadow-sm' : 'border-slate-200 hover:border-slate-300 bg-white'}`}>
+                                    <input type="radio" name="exportFormat" value="grouped" checked={exportFormat === 'grouped'} onChange={(e) => setExportFormat(e.target.value)} className="sr-only" />
+                                    <div className="flex items-center justify-between mb-1">
+                                        <div className="flex items-center gap-2">
+                                            <i className={`fa-solid fa-list-ul ${exportFormat === 'grouped' ? 'text-kai-blue' : 'text-slate-400'}`}></i>
+                                            <span className="font-bold text-slate-800 text-sm">Tabel Dipisah per Lokasi</span>
+                                        </div>
+                                        <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${exportFormat === 'grouped' ? 'border-kai-blue' : 'border-slate-300'}`}>
+                                            {exportFormat === 'grouped' && <div className="w-2 h-2 rounded-full bg-kai-blue"></div>}
+                                        </div>
+                                    </div>
+                                    <p className="text-xs text-slate-500 ml-6">Data dikelompokkan per stasiun. Ideal untuk <span className="font-semibold text-slate-700">Audit & Checklist Lapangan</span>.</p>
+                                </label>
+                            </div>
+
+                            {/* Show Empty Locations Option (only for grouped) */}
+                            {exportFormat === 'grouped' && (
+                                <div className="mt-4 pt-4 border-t border-slate-200 fade-in flex items-center justify-between bg-white p-3 rounded-lg border">
+                                    <div>
+                                        <p className="text-sm font-bold text-slate-700">Tampilkan lokasi tanpa data</p>
+                                        <p className="text-xs text-slate-500">Cetak tulisan "Belum ada aset" sebagai bukti audit jika nihil.</p>
+                                    </div>
+                                    <label className="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" className="sr-only peer" checked={showEmptyLocations} onChange={(e) => setShowEmptyLocations(e.target.checked)} />
+                                        <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-kai-blue rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-kai-blue"></div>
+                                    </label>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Preview & Action Column */}
+                    <div className="border border-slate-100 rounded-xl p-5 bg-slate-800 text-white flex flex-col relative overflow-hidden h-full">
+                        <div className="absolute -right-4 -top-4 w-40 h-40 bg-white/5 rounded-full pointer-events-none"></div>
+                        <div className="absolute -left-10 bottom-10 w-24 h-24 bg-kai-blue/20 rounded-full blur-xl pointer-events-none"></div>
+                        
+                        <h4 className="font-semibold text-slate-200 text-sm mb-4 relative z-10 flex items-center gap-2">
+                            <i className="fa-solid fa-eye text-kai-blue"></i> Preview Hasil Export
+                        </h4>
+                        
+                        {isPreviewLoading ? (
+                            <div className="flex-1 flex items-center justify-center relative z-10 py-10">
+                                <i className="fa-solid fa-spinner fa-spin text-3xl text-kai-blue"></i>
+                            </div>
+                        ) : (
+                            <div className="flex-1 relative z-10 flex flex-col">
+                                <div className="grid grid-cols-2 gap-4 mb-5">
+                                    <div className="bg-slate-700/50 p-3 rounded-lg border border-slate-600/50">
+                                        <p className="text-[10px] text-slate-400 uppercase tracking-wider mb-1">Total Data Aset</p>
+                                        <p className="text-2xl font-black text-white">{previewData?.total || 0}</p>
+                                    </div>
+                                    <div className="bg-slate-700/50 p-3 rounded-lg border border-slate-600/50">
+                                        <p className="text-[10px] text-slate-400 uppercase tracking-wider mb-1">Total Lokasi</p>
+                                        <p className="text-2xl font-black text-white">{previewData?.locations?.length || 0}</p>
+                                    </div>
+                                </div>
+                                
+                                <div className="mb-5">
+                                    <p className="text-xs text-slate-400 mb-2">Workbook yang terbentuk ({previewData?.categories?.length || 0} Sheet):</p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {previewData?.categories?.length > 0 ? previewData.categories.map(c => (
+                                            <span key={c.name} className="px-2 py-1 rounded bg-kai-blue/20 text-kai-blue border border-kai-blue/30 text-xs font-semibold flex items-center gap-1">
+                                                <i className="fa-regular fa-file-excel"></i> {c.name}
+                                            </span>
+                                        )) : <span className="text-xs text-slate-500 italic">Semua Kategori</span>}
+                                    </div>
+                                </div>
+
+                                <div className="mb-6 bg-slate-700/30 p-3 rounded-lg border border-slate-700/50">
+                                    <p className="text-xs text-slate-400 mb-1">Format Layout:</p>
+                                    <p className="text-sm font-semibold text-emerald-400 flex items-center gap-2">
+                                        <i className="fa-solid fa-layer-group"></i> {previewData?.format_desc || 'Tabel Gabungan'}
+                                    </p>
+                                </div>
                             </div>
                         )}
 
@@ -372,7 +448,7 @@ export default function Reports({ stats, assetTypes = [], locations = [], assets
                                     disabled={!previewData || previewData.total === 0 || isPreviewLoading}
                                     className="w-full bg-kai-orange text-white px-5 py-3 rounded-lg text-sm font-bold shadow-md hover:bg-orange-600 transition disabled:opacity-50 flex items-center justify-center gap-2"
                                 >
-                                    <i className="fa-solid fa-file-excel"></i> Download Excel Terpadu
+                                    <i className="fa-solid fa-file-excel text-lg"></i> Download Laporan
                                 </button>
                             )}
                         </div>
