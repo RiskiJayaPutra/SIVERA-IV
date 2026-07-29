@@ -225,14 +225,14 @@ export default function Reports({ stats, assetTypes = [], locations = [], assets
                                 Reset (Semua)
                             </button>
                         </div>
-                        <div className="space-y-2 max-h-48 overflow-y-auto custom-scrollbar pr-2">
+                        <div className="space-y-1 max-h-48 overflow-y-auto custom-scrollbar px-1 py-1">
                             {assetTypes.map(type => (
-                                <label key={type.id} className="flex items-center gap-2 cursor-pointer group">
+                                <label key={type.id} className="flex items-center gap-2 cursor-pointer group p-1 rounded hover:bg-slate-50 transition">
                                     <input 
                                         type="checkbox" 
                                         checked={exportCategories.includes(type.id)}
                                         onChange={() => handleCategoryToggle(type.id)}
-                                        className="rounded text-kai-blue focus:ring-kai-blue border-slate-300 w-4 h-4 shrink-0"
+                                        className="rounded text-kai-blue focus:ring-kai-blue border-slate-300 w-4 h-4 shrink-0 cursor-pointer"
                                     />
                                     <span className="text-sm text-slate-600 group-hover:text-kai-blue transition">{type.name}</span>
                                 </label>
