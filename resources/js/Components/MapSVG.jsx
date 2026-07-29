@@ -85,29 +85,88 @@ const BHORIZ = [
 const ALL_STATIONS = [...MAIN, ...BVERT, ...BHORIZ];
 
 const UNIT_GROUPS = [
-    { parentId: 'st-tarahan', direction: 'up', items: [{label:'DIPO LOK', freq:'(3+30)'}, {label:'DIPO GRB', freq:'(3+30)'}, {label:'KRU KA THN', freq:'(3+30)'}, {label:'POSKES'}, {label:'TAKE OR PAY'}] },
-    { parentId: 'st-tanjungkarang', direction: 'down', items: [{label:'ST. TNK', freq:'(3+30)'}, {label:'KTR DIVRE 4'}, {label:'DIPO LOK', freq:'(3+30)'}, {label:'KRU KA', freq:'(3+30)'}, {label:'POSKES CREW KA'}] },
-    { parentId: 'st-tanjungkarang', direction: 'up', items: [{label:'Resort JR Tnk'}, {label:'Resort STL Tnk'}] },
-    { parentId: 'st-rejosari', direction: 'up', items: [{label:'Resort JR Rjs'}, {label:'Resort STL Rjs'}] },
-    { parentId: 'st-tegineneng', direction: 'down', items: [{label:'Resort JR Tgi'}] },
-    { parentId: 'st-bekri', direction: 'up', items: [{label:'Resort JR Bkr'}, {label:'Resort Sintel KB'}, {label:'Resort KB'}] },
-    { parentId: 'st-kotabumi', direction: 'up', items: [{label:'Tower KTP'}, {label:'Kru KA KTP'}, {label:'Resort Sintel KB'}, {label:'Resort JR KB'}] },
-    { parentId: 'st-ketapang', direction: 'up', items: [{label:'Resort JR KTP', freq:'(3+30)'}, {label:'Kru KA KTP'}] },
-    { parentId: 'st-ketapang', direction: 'down', items: [{label:'Resort JR BEU', freq:'(3+30)'}] },
-    { parentId: 'st-negriagung', direction: 'down', items: [{label:'Resort JR TLY'}, {label:'Resort Sintel NRR'}] },
-    { parentId: 'st-blambanganumpu', direction: 'down', items: [{label:'Resort JR NGK'}] },
-    { parentId: 'st-giham', direction: 'up', items: [{label:'Resort JR KYG'}] },
-    { parentId: 'st-waytuba', direction: 'down', items: [{label:'Resort JR WAY'}] },
-    { parentId: 'st-martapura', direction: 'up', items: [{label:'Resort JR MP'}] },
-    { parentId: 'st-martapura', direction: 'down', items: [{label:'Resort Sintel MP'}] },
-    { parentId: 'st-sepancar', direction: 'down', items: [{label:'Resort JR SPC'}] },
-    { parentId: 'st-baturaja', direction: 'down', items: [{label:'Resort JR BTA', freq:'(3+30)'}, {label:'Resort Sintel BTA'}, {label:'Resort JJ BTA'}, {label:'BP BTA', freq:'(3+30)'}] },
-
-    { parentId: 'st-tigagajah', direction: 'right', items: [{label:'Kru KA TJH', freq:'(3+30)'}] },
-    { parentId: 'st-belimbingairkaka', direction: 'right', items: [{label:'Resort JR BK'}] },
-    { parentId: 'st-peninjawan', direction: 'right', items: [{label:'Resort JR PNW'}, {label:'Resort Sintel PNW'}] },
-    { parentId: 'st-pagargunung', direction: 'up', items: [{label:'Resort JR PGG'}, {label:'Resort Sintel PGG'}] },
-    { parentId: 'st-tanjungrambang', direction: 'up', items: [{label:'Resort JR TJR'}] },
+    { parentId: 'st-tarahan', direction: 'up', cols: 2, items: [
+        {id:'u-dipo-lok-tarahan', label:'DIPO LOK', freq:'(3+30)'}, 
+        {id:'u-dipo-grb-tarahan', label:'DIPO GRB', freq:'(3+30)'}, 
+        {id:'u-kru-ka-thn-tarahan', label:'KRU KA THN', freq:'(3+30)'}, 
+        {id:'u-poskes-tarahan', label:'POSKES'}, 
+        {id:'u-take-or-pay-tarahan', label:'TAKE OR PAY'}
+    ] },
+    { parentId: 'st-tanjungkarang', direction: 'down', cols: 2, items: [
+        {id:'u-st-tnk-tanjungkarang', label:'ST. TNK', freq:'(3+30)'}, 
+        {id:'u-ktr-divre-4-tanjungkarang', label:'KTR DIVRE 4'}, 
+        {id:'u-dipo-lok-tanjungkarang', label:'DIPO LOK', freq:'(3+30)'}, 
+        {id:'u-kru-ka-tanjungkarang', label:'KRU KA', freq:'(3+30)'}, 
+        {id:'u-poskes-crew-ka-tanjungkarang', label:'POSKES CREW KA'},
+        {id:'u-resort-jr-tnk-tanjungkarang', label:'Resort JR Tnk'}, 
+        {id:'u-resort-stl-tnk-tanjungkarang', label:'Resort STL Tnk'}
+    ] },
+    { parentId: 'st-rejosari', direction: 'up', items: [
+        {id:'u-resort-jr-rjs-rejosari', label:'Resort JR Rjs'}, 
+        {id:'u-resort-stl-rjs-rejosari', label:'Resort STL Rjs'}
+    ] },
+    { parentId: 'st-tegineneng', direction: 'down', items: [
+        {id:'u-resort-jr-tgi-tegineneng', label:'Resort JR Tgi'}
+    ] },
+    { parentId: 'st-bekri', direction: 'up', items: [
+        {id:'u-resort-jr-bkr-bekri', label:'Resort JR Bkr'}, 
+        {id:'u-resort-sintel-kb-bekri', label:'Resort Sintel KB'}, 
+        {id:'u-resort-kb-bekri', label:'Resort KB'}
+    ] },
+    { parentId: 'st-kotabumi', direction: 'up', cols: 2, items: [
+        {id:'u-tower-ktp-kotabumi', label:'Tower KTP'}, 
+        {id:'u-kru-ka-ktp-kotabumi', label:'Kru KA KTP'}, 
+        {id:'u-resort-sintel-kb-kotabumi', label:'Resort Sintel KB'}, 
+        {id:'u-resort-jr-kb-kotabumi', label:'Resort JR KB'}
+    ] },
+    { parentId: 'st-ketapang', direction: 'up', items: [
+        {id:'u-resort-jr-ktp-ketapang', label:'Resort JR KTP', freq:'(3+30)'}, 
+        {id:'u-kru-ka-ktp-ketapang', label:'Kru KA KTP'},
+        {id:'u-resort-jr-beu-ketapang', label:'Resort JR BEU', freq:'(3+30)'}
+    ] },
+    { parentId: 'st-negriagung', direction: 'down', items: [
+        {id:'u-resort-jr-tly-negriagung', label:'Resort JR TLY'}, 
+        {id:'u-resort-sintel-nrr-negriagung', label:'Resort Sintel NRR'}
+    ] },
+    { parentId: 'st-blambanganumpu', direction: 'down', items: [
+        {id:'u-resort-jr-ngk-blambanganumpu', label:'Resort JR NGK'}
+    ] },
+    { parentId: 'st-giham', direction: 'up', items: [
+        {id:'u-resort-jr-kyg-giham', label:'Resort JR KYG'}
+    ] },
+    { parentId: 'st-waytuba', direction: 'down', items: [
+        {id:'u-resort-jr-way-waytuba', label:'Resort JR WAY'}
+    ] },
+    { parentId: 'st-martapura', direction: 'up', items: [
+        {id:'u-resort-jr-mp-martapura', label:'Resort JR MP'},
+        {id:'u-resort-sintel-mp-martapura', label:'Resort Sintel MP'}
+    ] },
+    { parentId: 'st-sepancar', direction: 'down', items: [
+        {id:'u-resort-jr-spc-sepancar', label:'Resort JR SPC'}
+    ] },
+    { parentId: 'st-baturaja', direction: 'down', cols: 2, items: [
+        {id:'u-resort-jr-bta-baturaja', label:'Resort JR BTA', freq:'(3+30)'}, 
+        {id:'u-resort-sintel-bta-baturaja', label:'Resort Sintel BTA'}, 
+        {id:'u-resort-jj-bta-baturaja', label:'Resort JJ BTA'}, 
+        {id:'u-bp-bta-baturaja', label:'BP BTA', freq:'(3+30)'}
+    ] },
+    { parentId: 'st-tigagajah', direction: 'right', items: [
+        {id:'u-kru-ka-tjh-tigagajah', label:'Kru KA TJH', freq:'(3+30)'}
+    ] },
+    { parentId: 'st-belimbingairkaka', direction: 'right', items: [
+        {id:'u-resort-jr-bk-belimbingairkaka', label:'Resort JR BK'}
+    ] },
+    { parentId: 'st-peninjawan', direction: 'right', items: [
+        {id:'u-resort-jr-pnw-peninjawan', label:'Resort JR PNW'}, 
+        {id:'u-resort-sintel-pnw-peninjawan', label:'Resort Sintel PNW'}
+    ] },
+    { parentId: 'st-pagargunung', direction: 'up', items: [
+        {id:'u-resort-jr-pgg-pagargunung', label:'Resort JR PGG'}, 
+        {id:'u-resort-sintel-pgg-pagargunung', label:'Resort Sintel PGG'}
+    ] },
+    { parentId: 'st-tanjungrambang', direction: 'up', items: [
+        {id:'u-resort-jr-tjr-tanjungrambang', label:'Resort JR TJR'}
+    ] },
 ];
 
 export default function MapSVG({ onClickStation, locations = [] }) {
@@ -151,22 +210,18 @@ export default function MapSVG({ onClickStation, locations = [] }) {
         h += `<rect width="${MAP_W}" height="${MAP_H}" fill="#FFFFFF"/>`;
 
         // HEADER
-        h += `<rect x="16" y="14" width="122" height="28" rx="2" fill="#111827"/>`;
-        h += `<text x="77" y="33" text-anchor="middle" font-size="12" font-weight="800" fill="white" font-family="Plus Jakarta Sans,sans-serif">PETA WILAYAH</text>`;
-        h += `<rect x="140" y="14" width="320" height="28" rx="2" fill="#DC2626"/>`;
-        h += `<text x="300" y="33" text-anchor="middle" font-size="11.5" font-weight="700" fill="white" font-family="Plus Jakarta Sans,sans-serif">SISTEM INFORMASI DIVRE IV TNK</text>`;
-
-        // KAI LOGO
-        h += `<rect x="${MAP_W - 115}" y="12" width="100" height="34" rx="6" fill="#0D2C54"/>`;
-        h += `<text x="${MAP_W - 65}" y="36" text-anchor="middle" font-size="19" font-weight="900" fill="white" font-family="Plus Jakarta Sans,sans-serif" letter-spacing="4">KAI</text>`;
+        h += `<rect x="16" y="154" width="122" height="28" rx="2" fill="#111827"/>`;
+        h += `<text x="77" y="173" text-anchor="middle" font-size="12" font-weight="800" fill="white" font-family="Plus Jakarta Sans,sans-serif">PETA WILAYAH</text>`;
+        h += `<rect x="140" y="154" width="320" height="28" rx="2" fill="#DC2626"/>`;
+        h += `<text x="300" y="173" text-anchor="middle" font-size="11.5" font-weight="700" fill="white" font-family="Plus Jakarta Sans,sans-serif">SISTEM INFORMASI DIVRE IV TNK</text>`;
 
         // IT SUPPORT ZONE
         const spX = 1069; 
-        h += `<line x1="${spX}" y1="50" x2="${spX}" y2="${MY + 30}" stroke="#94A3B8" stroke-width="1.6" stroke-dasharray="8,5" opacity="0.45"/>`;
-        h += `<rect x="${spX - 110}" y="82" width="104" height="22" rx="4" fill="rgba(30,64,175,0.08)"/>`;
-        h += `<text x="${spX - 58}" y="97" text-anchor="middle" font-size="9" font-weight="700" fill="#1E40AF" font-family="Plus Jakarta Sans,sans-serif">WILAYAH IT SUPPORT 1</text>`;
-        h += `<rect x="${spX + 6}" y="82" width="104" height="22" rx="4" fill="rgba(180,83,9,0.08)"/>`;
-        h += `<text x="${spX + 58}" y="97" text-anchor="middle" font-size="9" font-weight="700" fill="#92400E" font-family="Plus Jakarta Sans,sans-serif">WILAYAH IT SUPPORT 2</text>`;
+        h += `<line x1="${spX}" y1="180" x2="${spX}" y2="${MY + 30}" stroke="#94A3B8" stroke-width="1.6" stroke-dasharray="8,5" opacity="0.45"/>`;
+        h += `<rect x="${spX - 110}" y="192" width="104" height="22" rx="4" fill="rgba(30,64,175,0.08)"/>`;
+        h += `<text x="${spX - 58}" y="207" text-anchor="middle" font-size="9" font-weight="700" fill="#1E40AF" font-family="Plus Jakarta Sans,sans-serif">WILAYAH IT SUPPORT 1</text>`;
+        h += `<rect x="${spX + 6}" y="192" width="104" height="22" rx="4" fill="rgba(180,83,9,0.08)"/>`;
+        h += `<text x="${spX + 58}" y="207" text-anchor="middle" font-size="9" font-weight="700" fill="#92400E" font-family="Plus Jakarta Sans,sans-serif">WILAYAH IT SUPPORT 2</text>`;
 
         // RAIL TRACK
         h += `<line x1="90" y1="${MY}" x2="${BX + 15}" y2="${MY}" stroke="url(#railGrad)" stroke-width="18" stroke-linecap="round"/>`;
@@ -207,7 +262,10 @@ export default function MapSVG({ onClickStation, locations = [] }) {
             if (!st) return;
 
             const count = grp.items.length;
-            const totalH = count * BOX_H + (count - 1) * BOX_GAP;
+            const cols = grp.cols || 1;
+            const rows = Math.ceil(count / cols);
+            const totalH = rows * BOX_H + (rows - 1) * BOX_GAP;
+            const totalW = cols * BOX_W + (cols - 1) * BOX_GAP;
             const boxes = [];
             const stY = st.y || MY;
 
@@ -216,7 +274,11 @@ export default function MapSVG({ onClickStation, locations = [] }) {
                 const topY = stY - O - totalH;
                 h += `<line x1="${st.x}" y1="${stY}" x2="${st.x}" y2="${topY}" stroke="#94A3B8" stroke-width="1.5" opacity="0.7"/>`;
                 for (let i=0; i<count; i++) {
-                    boxes.push({ x: st.x - BOX_W/2, y: topY + i * (BOX_H + BOX_GAP), item: grp.items[i] });
+                    const col = i % cols;
+                    const row = Math.floor(i / cols);
+                    const bx = cols === 1 ? st.x - BOX_W/2 : (st.x - totalW/2 + col * (BOX_W + BOX_GAP));
+                    const by = topY + row * (BOX_H + BOX_GAP);
+                    boxes.push({ x: bx, y: by, item: grp.items[i] });
                 }
             } 
             else if (grp.direction === 'down') {
@@ -224,7 +286,11 @@ export default function MapSVG({ onClickStation, locations = [] }) {
                 const topY = stY + O;
                 h += `<line x1="${st.x}" y1="${stY}" x2="${st.x}" y2="${topY + totalH}" stroke="#94A3B8" stroke-width="1.5" opacity="0.7"/>`;
                 for (let i=0; i<count; i++) {
-                    boxes.push({ x: st.x - BOX_W/2, y: topY + i * (BOX_H + BOX_GAP), item: grp.items[i] });
+                    const col = i % cols;
+                    const row = Math.floor(i / cols);
+                    const bx = cols === 1 ? st.x - BOX_W/2 : (st.x - totalW/2 + col * (BOX_W + BOX_GAP));
+                    const by = topY + row * (BOX_H + BOX_GAP);
+                    boxes.push({ x: bx, y: by, item: grp.items[i] });
                 }
             } 
             else if (grp.direction === 'right') {
@@ -239,7 +305,8 @@ export default function MapSVG({ onClickStation, locations = [] }) {
             }
 
             boxes.forEach(b => {
-                h += `<rect x="${b.x}" y="${b.y}" width="${BOX_W}" height="${BOX_H}" rx="3" fill="#F3E8FF" stroke="#8B5CF6" stroke-width="1" class="click-area" onclick="window.__mapClickStation('${grp.parentId}')" style="cursor:pointer"/>`;
+                const targetId = b.item.id || grp.parentId;
+                h += `<rect x="${b.x}" y="${b.y}" width="${BOX_W}" height="${BOX_H}" rx="3" fill="#F3E8FF" stroke="#8B5CF6" stroke-width="1" class="click-area" onclick="window.__mapClickStation('${targetId}')" style="cursor:pointer"/>`;
                 h += `<text x="${b.x + BOX_W/2}" y="${b.y + 12}" text-anchor="middle" font-size="8" font-weight="700" fill="#6D28D9" font-family="Plus Jakarta Sans,sans-serif" pointer-events="none">${b.item.label}</text>`;
                 if (b.item.freq) {
                     h += `<text x="${b.x + BOX_W + 5}" y="${b.y + 12}" font-size="7.5" font-weight="700" fill="#64748B" font-family="Plus Jakarta Sans,sans-serif" pointer-events="none">${b.item.freq}</text>`;
@@ -333,8 +400,8 @@ export default function MapSVG({ onClickStation, locations = [] }) {
 
     return (
         <svg ref={svgRef} id="mapSVG" xmlns="http://www.w3.org/2000/svg"
-            width={MAP_W} height={MAP_H}
-            viewBox={`0 0 ${MAP_W} ${MAP_H}`}
+            width="1900" height="870"
+            viewBox="0 130 1900 870"
             style={{ shapeRendering: 'geometricPrecision', textRendering: 'geometricPrecision' }}>
         </svg>
     );
