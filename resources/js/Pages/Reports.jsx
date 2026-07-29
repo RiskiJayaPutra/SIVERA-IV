@@ -128,6 +128,59 @@ export default function Reports({ stats, assetTypes = [], locations = [], assets
     const renderTable = () => {
         if (!currentTab || !currentSchema) return null;
 
+        if (exportFormat === 'grouped') {
+            // Group the data by location_id
+            const grouped = {};
+            (assets.data || []).forEach(row => {
+                const locId = row.location_id;
+                if (!grouped[locId]) {
+                    grouped[locId] = {
+                        name: row.location?.name || '-',
+                        data: []
+                    };
+                }
+                grouped[locId].data.push({
+                    id: row.id,
+                    location_id: row.location_id,
+                    location_name: row.location?.name || '-',
+                    ...row.data
+                });
+            });
+
+            const columns = [
+                { key: '_no', label: 'No', type: 'display' },
+                ...(currentSchema.columns || []).filter(c => c.key !== '_no')
+            ];
+
+            const sortedLocIds = Object.keys(grouped).sort((a,b) => grouped[a].name.localeCompare(grouped[b].name));
+            
+            if (sortedLocIds.length === 0) {
+                return (
+                     <div className="text-center py-12 text-slate-400">
+                         <i className="fa-solid fa-folder-open text-4xl mb-3 opacity-30"></i>
+                         <p>Belum ada aset untuk laporan ini.</p>
+                     </div>
+                );
+            }
+
+            return (
+                <div className="space-y-8">
+                    {sortedLocIds.map(locId => (
+                        <EditableAssetTable 
+                            key={locId}
+                            title={`Laporan ${currentTab.name}`} 
+                            icon={currentTab.icon}
+                            locationName={grouped[locId].name}
+                            data={grouped[locId].data} 
+                            columns={columns} 
+                            headerGroups={currentSchema.headerGroups} 
+                            readOnly={true} 
+                        />
+                    ))}
+                </div>
+            );
+        }
+
         // Inject location_name for global table display
         const tableData = (assets.data || []).map(row => ({
             id: row.id,
