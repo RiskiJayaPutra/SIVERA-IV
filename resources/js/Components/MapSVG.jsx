@@ -76,10 +76,10 @@ const BVERT = [
 
 const BTOP_Y = 270;
 const BHORIZ = [
-    { id:'st-pagargunung',    x:BX-70, y:BTOP_Y, label:'PAGAR GUNUNG',    net:'icon', r:8, freq:'3+30', major:true },
-    { id:'st-airasam',        x:BX-160, y:BTOP_Y, label:'Air Asam',        net:'swfo', r:6 },
-    { id:'st-sukamerindu',    x:BX-250, y:BTOP_Y, label:'Suka Merindu',    net:'swfo', r:6 },
-    { id:'st-tanjungrambang', x:BX-340, y:BTOP_Y, label:'TANJUNGRAMBANG',  net:'swfo', r:8, freq:'3+30', major:true }
+    { id:'st-pagargunung',    x:BX-100, y:BTOP_Y, label:'PAGAR GUNUNG',    net:'icon', r:8, freq:'3+30', major:true },
+    { id:'st-airasam',        x:BX-200, y:BTOP_Y, label:'Air Asam',        net:'swfo', r:6 },
+    { id:'st-sukamerindu',    x:BX-300, y:BTOP_Y, label:'Suka Merindu',    net:'swfo', r:6 },
+    { id:'st-tanjungrambang', x:BX-420, y:BTOP_Y, label:'TANJUNGRAMBANG',  net:'swfo', r:8, freq:'3+30', major:true }
 ];
 
 const ALL_STATIONS = [...MAIN, ...BVERT, ...BHORIZ];
@@ -209,8 +209,8 @@ export default function MapSVG({ onClickStation, locations = [] }) {
 
         // BOUNDARY
         const bmx = (kb.x + BHORIZ[0].x) / 2, bmy = (kb.y + BHORIZ[0].y) / 2;
-        h += `<text x="${bmx - 80}" y="${bmy - 45}" text-anchor="middle" font-size="10" font-weight="700" fill="#475569" font-family="Plus Jakarta Sans,sans-serif">Batas wil. Divre IV TNK</text>`;
-        h += `<text x="${bmx - 80}" y="${bmy - 30}" text-anchor="middle" font-size="10" font-weight="700" fill="#475569" font-family="Plus Jakarta Sans,sans-serif">dengan Divre III KPT</text>`;
+        h += `<text x="${bmx}" y="${bmy - 45}" text-anchor="middle" font-size="10" font-weight="700" fill="#475569" font-family="Plus Jakarta Sans,sans-serif">Batas wil. Divre IV TNK</text>`;
+        h += `<text x="${bmx}" y="${bmy - 30}" text-anchor="middle" font-size="10" font-weight="700" fill="#475569" font-family="Plus Jakarta Sans,sans-serif">dengan Divre III KPT</text>`;
 
         // CONNECTING LINES & UNIT BOXES
         const BOX_W = 100;
@@ -281,7 +281,7 @@ export default function MapSVG({ onClickStation, locations = [] }) {
 
             const isMajor = st.major || r >= 10;
 
-            if (yp === MY) {
+            if (yp === MY || yp === BTOP_Y) {
                 if (isMajor) {
                     s += `<text x="${x}" y="${y - r - 12}" text-anchor="middle" font-size="12" font-weight="800" fill="#0D2C54" font-family="Plus Jakarta Sans,sans-serif" pointer-events="none" stroke="white" stroke-width="3" stroke-linejoin="round">${st.label}</text>`;
                     s += `<text x="${x}" y="${y - r - 12}" text-anchor="middle" font-size="12" font-weight="800" fill="#0D2C54" font-family="Plus Jakarta Sans,sans-serif" pointer-events="none">${st.label}</text>`;
