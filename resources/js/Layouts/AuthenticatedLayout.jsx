@@ -36,53 +36,53 @@ export default function AuthenticatedLayout({ children, headerTitle, headerSubti
 
             {/* Sidebar */}
             <aside 
-                className={`sidebar fixed md:relative top-0 left-0 h-full md:h-auto w-64 bg-white border-r border-slate-200 flex flex-col z-40 shadow-xl md:shadow-none flex-shrink-0 ${
+                className={`sidebar fixed md:relative top-0 left-0 h-full md:h-auto w-64 bg-kai-navy text-white flex flex-col z-40 shadow-xl md:shadow-none flex-shrink-0 transition-transform duration-300 ${
                     sidebarOpen ? 'sidebar-open' : 'sidebar-closed'
                 }`}
             >
-                <div className="p-4 border-b border-slate-200 flex items-center justify-between">
+                <div className="p-4 border-b border-white/10 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm border border-slate-100 p-1">
+                        <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-md p-1">
                             <img src="/images/logo.png" alt="Logo KAI" className="w-full h-full object-contain scale-90" />
                         </div>
                         <div>
-                            <span className="text-sm font-extrabold text-kai-blue block">SIVERA IV</span>
-                            <span className="text-[9px] text-slate-400 block leading-none mt-0.5">Divre IV Tanjung Karang</span>
+                            <span className="text-sm font-extrabold text-white block">SIVERA IV</span>
+                            <span className="text-[9px] text-blue-200 block leading-none mt-0.5">Divre IV Tanjung Karang</span>
                         </div>
                     </div>
-                    <button onClick={closeSidebar} className="md:hidden text-slate-400 hover:text-slate-600 transition">
+                    <button onClick={closeSidebar} className="md:hidden text-blue-200 hover:text-white transition">
                         <i className="fa-solid fa-xmark text-lg"></i>
                     </button>
                 </div>
 
-                <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto mt-2">
-                    <Link href={route('dashboard')} className={`nav-link flex items-center px-3 py-2.5 rounded-xl text-sm transition gap-3 ${navActive('dashboard') ? 'nav-active' : 'font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-800'}`}>
-                        <i className={`fa-solid fa-gauge text-base w-5 text-center ${navActive('dashboard') ? 'text-kai-orange' : 'text-slate-400'}`}></i>
+                <nav className="flex-1 p-3 space-y-1 overflow-y-auto mt-2 custom-scrollbar-dark">
+                    <Link href={route('dashboard')} className={`nav-link flex items-center px-4 py-3 rounded-lg text-sm transition-all duration-200 gap-3 border-l-4 ${navActive('dashboard') ? 'bg-white/10 text-white font-bold border-kai-orange' : 'font-medium text-blue-100/70 border-transparent hover:bg-white/5 hover:text-white'}`}>
+                        <i className={`fa-solid fa-gauge text-base w-5 text-center ${navActive('dashboard') ? 'text-kai-orange' : 'text-blue-200/50'}`}></i>
                         <span>Dashboard</span>
                     </Link>
-                    <Link href={route('assets.index')} className={`nav-link flex items-center px-3 py-2.5 rounded-xl text-sm transition gap-3 ${navActive('assets.*') ? 'nav-active' : 'font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-800'}`}>
-                        <i className={`fa-solid fa-server text-base w-5 text-center ${navActive('assets.*') ? 'text-kai-orange' : 'text-slate-400'}`}></i>
+                    <Link href={route('assets.index')} className={`nav-link flex items-center px-4 py-3 rounded-lg text-sm transition-all duration-200 gap-3 border-l-4 ${navActive('assets.*') ? 'bg-white/10 text-white font-bold border-kai-orange' : 'font-medium text-blue-100/70 border-transparent hover:bg-white/5 hover:text-white'}`}>
+                        <i className={`fa-solid fa-server text-base w-5 text-center ${navActive('assets.*') ? 'text-kai-orange' : 'text-blue-200/50'}`}></i>
                         <span>Data Aset</span>
                     </Link>
-                    <Link href={route('locations.index')} className={`nav-link flex items-center px-3 py-2.5 rounded-xl text-sm transition gap-3 ${navActive('locations.*') ? 'nav-active' : 'font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-800'}`}>
-                        <i className={`fa-solid fa-map-location-dot text-base w-5 text-center ${navActive('locations.*') ? 'text-kai-orange' : 'text-slate-400'}`}></i>
+                    <Link href={route('locations.index')} className={`nav-link flex items-center px-4 py-3 rounded-lg text-sm transition-all duration-200 gap-3 border-l-4 ${navActive('locations.*') ? 'bg-white/10 text-white font-bold border-kai-orange' : 'font-medium text-blue-100/70 border-transparent hover:bg-white/5 hover:text-white'}`}>
+                        <i className={`fa-solid fa-map-location-dot text-base w-5 text-center ${navActive('locations.*') ? 'text-kai-orange' : 'text-blue-200/50'}`}></i>
                         <span>Master Lokasi</span>
                     </Link>
 
                     {user.role === 'superadmin' && (
                         <>
-                            <Link href={route('users.index')} className={`nav-link flex items-center px-3 py-2.5 rounded-xl text-sm transition gap-3 ${navActive('users.*') ? 'nav-active' : 'font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-800'}`}>
-                                <i className={`fa-solid fa-users-gear text-base w-5 text-center ${navActive('users.*') ? 'text-kai-orange' : 'text-slate-400'}`}></i>
+                            <Link href={route('users.index')} className={`nav-link flex items-center px-4 py-3 rounded-lg text-sm transition-all duration-200 gap-3 border-l-4 ${navActive('users.*') ? 'bg-white/10 text-white font-bold border-kai-orange' : 'font-medium text-blue-100/70 border-transparent hover:bg-white/5 hover:text-white'}`}>
+                                <i className={`fa-solid fa-users-gear text-base w-5 text-center ${navActive('users.*') ? 'text-kai-orange' : 'text-blue-200/50'}`}></i>
                                 <span>Manajemen User</span>
                             </Link>
-                            <Link href={route('asset-types.index')} className={`nav-link flex items-center px-3 py-2.5 rounded-xl text-sm transition gap-3 ${navActive('asset-types.*') ? 'nav-active' : 'font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-800'}`}>
-                                <i className={`fa-solid fa-layer-group text-base w-5 text-center ${navActive('asset-types.*') ? 'text-kai-orange' : 'text-slate-400'}`}></i>
+                            <Link href={route('asset-types.index')} className={`nav-link flex items-center px-4 py-3 rounded-lg text-sm transition-all duration-200 gap-3 border-l-4 ${navActive('asset-types.*') ? 'bg-white/10 text-white font-bold border-kai-orange' : 'font-medium text-blue-100/70 border-transparent hover:bg-white/5 hover:text-white'}`}>
+                                <i className={`fa-solid fa-layer-group text-base w-5 text-center ${navActive('asset-types.*') ? 'text-kai-orange' : 'text-blue-200/50'}`}></i>
                                 <span>Master Skema Aset</span>
                             </Link>
                         </>
                     )}
-                    <Link href={route('reports.index')} className={`nav-link flex items-center px-3 py-2.5 rounded-xl text-sm transition gap-3 ${navActive('reports.*') ? 'nav-active' : 'font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-800'}`}>
-                        <i className={`fa-solid fa-file-invoice text-base w-5 text-center ${navActive('reports.*') ? 'text-kai-orange' : 'text-slate-400'}`}></i>
+                    <Link href={route('reports.index')} className={`nav-link flex items-center px-4 py-3 rounded-lg text-sm transition-all duration-200 gap-3 border-l-4 ${navActive('reports.*') ? 'bg-white/10 text-white font-bold border-kai-orange' : 'font-medium text-blue-100/70 border-transparent hover:bg-white/5 hover:text-white'}`}>
+                        <i className={`fa-solid fa-file-invoice text-base w-5 text-center ${navActive('reports.*') ? 'text-kai-orange' : 'text-blue-200/50'}`}></i>
                         <span>Laporan</span>
                     </Link>
                 </nav>
@@ -91,14 +91,14 @@ export default function AuthenticatedLayout({ children, headerTitle, headerSubti
             {/* Main Content */}
             <div className="flex-1 min-w-0 flex flex-col h-screen overflow-hidden">
                 {/* Header */}
-                <header className="bg-white border-b border-slate-200 py-3 px-4 md:px-6 flex items-center justify-between sticky top-0 z-30 shadow-sm flex-shrink-0">
+                <header className="bg-white/80 backdrop-blur-md border-b border-slate-200 py-3 px-4 md:px-6 flex items-center justify-between sticky top-0 z-30 shadow-sm flex-shrink-0">
                     <div className="flex items-center gap-3">
                         <button onClick={openSidebar} className="md:hidden text-slate-500 hover:text-slate-700 transition p-1.5 rounded-lg hover:bg-slate-100">
                             <i className="fa-solid fa-bars text-lg"></i>
                         </button>
                         <div>
-                            <h1 className="text-sm font-extrabold text-kai-blue leading-tight">{headerTitle || 'Dashboard'}</h1>
-                            {headerSubtitle && <p className="text-[10px] text-slate-400 hidden sm:block">{headerSubtitle}</p>}
+                            <h1 className="text-lg font-bold text-slate-800 leading-tight">{headerTitle || 'Dashboard'}</h1>
+                            {headerSubtitle && <p className="text-xs text-slate-500 hidden sm:block mt-0.5">{headerSubtitle}</p>}
                         </div>
                     </div>
                     <div className="flex items-center gap-2 sm:gap-3">

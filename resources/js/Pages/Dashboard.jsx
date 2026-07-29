@@ -93,64 +93,84 @@ export default function Dashboard({ assets = [], locations = [], stats = {} }) {
         <AuthenticatedLayout headerTitle="Dashboard SIVERA IV" headerSubtitle="Peta pemetaan resort & aset">
             <Head title="Dashboard - SIVERA IV" />
 
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 fade-in">
-                <div className="stat-card total bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
-                    <div className="flex items-start justify-between mb-3">
-                        <div className="w-10 h-10 rounded-xl bg-kai-blue/10 flex items-center justify-center">
-                            <i className="fa-solid fa-database text-kai-blue text-base"></i>
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 fade-in">
+                {/* Total Aset */}
+                <div className="group bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-card hover:-translate-y-1 hover:shadow-lg transition-all duration-300 relative overflow-hidden">
+                    <i className="fa-solid fa-database absolute -right-4 -bottom-4 text-8xl text-kai-blue opacity-[0.03] group-hover:scale-110 transition-transform"></i>
+                    <div className="flex justify-between items-start relative z-10">
+                        <div>
+                            <h4 className="text-sm font-semibold text-slate-500 mb-1">Total Aset</h4>
+                            <span className="text-4xl font-black text-slate-800 tracking-tight">{stats.total || 0}</span>
+                        </div>
+                        <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-kai-blue border border-blue-100/50 shadow-inner">
+                            <i className="fa-solid fa-database text-xl"></i>
                         </div>
                     </div>
-                    <p className="text-2xl font-extrabold text-kai-blue">{stats.total || 0}</p>
-                    <p className="text-xs text-slate-400 font-semibold mt-0.5 uppercase tracking-wider">Total Aset</p>
                 </div>
-                <div className="stat-card baik bg-white rounded-2xl p-4 shadow-sm border border-slate-100 fade-in">
-                    <div className="flex items-start justify-between mb-3">
-                        <div className="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center">
-                            <i className="fa-solid fa-circle-check text-green-600 text-base"></i>
+
+                {/* Kondisi Baik */}
+                <div className="group bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-card hover:-translate-y-1 hover:shadow-lg transition-all duration-300 relative overflow-hidden">
+                    <i className="fa-solid fa-circle-check absolute -right-4 -bottom-4 text-8xl text-emerald-500 opacity-[0.03] group-hover:scale-110 transition-transform"></i>
+                    <div className="flex justify-between items-start relative z-10">
+                        <div>
+                            <h4 className="text-sm font-semibold text-slate-500 mb-1">Kondisi Baik</h4>
+                            <span className="text-4xl font-black text-slate-800 tracking-tight">{stats.baik || 0}</span>
+                        </div>
+                        <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 border border-emerald-100/50 shadow-inner">
+                            <i className="fa-solid fa-circle-check text-xl"></i>
                         </div>
                     </div>
-                    <p className="text-2xl font-extrabold text-green-600">{stats.baik || 0}</p>
-                    <p className="text-xs text-slate-400 font-semibold mt-0.5 uppercase tracking-wider">Kondisi Baik</p>
                 </div>
-                <div className="stat-card perawatan bg-white rounded-2xl p-4 shadow-sm border border-slate-100 fade-in">
-                    <div className="flex items-start justify-between mb-3">
-                        <div className="w-10 h-10 rounded-xl bg-yellow-100 flex items-center justify-center">
-                            <i className="fa-solid fa-triangle-exclamation text-yellow-600 text-base"></i>
+
+                {/* Perawatan */}
+                <div className="group bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-card hover:-translate-y-1 hover:shadow-lg transition-all duration-300 relative overflow-hidden">
+                    <i className="fa-solid fa-triangle-exclamation absolute -right-4 -bottom-4 text-8xl text-amber-500 opacity-[0.03] group-hover:scale-110 transition-transform"></i>
+                    <div className="flex justify-between items-start relative z-10">
+                        <div>
+                            <h4 className="text-sm font-semibold text-slate-500 mb-1">Perawatan</h4>
+                            <span className="text-4xl font-black text-slate-800 tracking-tight">{stats.perawatan || 0}</span>
+                        </div>
+                        <div className="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600 border border-amber-100/50 shadow-inner">
+                            <i className="fa-solid fa-triangle-exclamation text-xl"></i>
                         </div>
                     </div>
-                    <p className="text-2xl font-extrabold text-yellow-600">{stats.perawatan || 0}</p>
-                    <p className="text-xs text-slate-400 font-semibold mt-0.5 uppercase tracking-wider">Perawatan</p>
                 </div>
-                <div className="stat-card rusak bg-white rounded-2xl p-4 shadow-sm border border-slate-100 fade-in">
-                    <div className="flex items-start justify-between mb-3">
-                        <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center">
-                            <i className="fa-solid fa-circle-xmark text-red-600 text-base"></i>
+
+                {/* Kondisi Rusak */}
+                <div className="group bg-white rounded-2xl p-5 sm:p-6 border border-slate-200 shadow-card hover:-translate-y-1 hover:shadow-lg transition-all duration-300 relative overflow-hidden">
+                    <i className="fa-solid fa-circle-xmark absolute -right-4 -bottom-4 text-8xl text-rose-500 opacity-[0.03] group-hover:scale-110 transition-transform"></i>
+                    <div className="flex justify-between items-start relative z-10">
+                        <div>
+                            <h4 className="text-sm font-semibold text-slate-500 mb-1">Kondisi Rusak</h4>
+                            <span className="text-4xl font-black text-slate-800 tracking-tight">{stats.rusak || 0}</span>
+                        </div>
+                        <div className="w-12 h-12 rounded-xl bg-rose-50 flex items-center justify-center text-rose-600 border border-rose-100/50 shadow-inner">
+                            <i className="fa-solid fa-circle-xmark text-xl"></i>
                         </div>
                     </div>
-                    <p className="text-2xl font-extrabold text-red-600">{stats.rusak || 0}</p>
-                    <p className="text-xs text-slate-400 font-semibold mt-0.5 uppercase tracking-wider">Kondisi Rusak</p>
                 </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 sm:p-5 fade-in mt-5">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+            <div className="bg-white rounded-2xl shadow-card border border-slate-200 overflow-hidden fade-in mt-6 sm:mt-8">
+                {/* Command Center Header */}
+                <div className="bg-kai-navy p-4 sm:p-5 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
-                        <h3 className="text-sm font-extrabold text-kai-blue flex items-center gap-2">
+                        <h3 className="text-base font-bold text-white flex items-center gap-2">
                             <i className="fa-solid fa-map text-kai-orange"></i>
                             Peta Pemetaan Resort & Aset — Divre IV Tanjung Karang
                         </h3>
-                        <p className="text-[11px] text-slate-400 mt-0.5">Klik titik stasiun / unit untuk melihat daftar aset di lokasi tersebut.</p>
+                        <p className="text-[11px] text-blue-200/70 mt-1 font-medium">Klik titik stasiun / unit untuk melihat daftar aset di lokasi tersebut.</p>
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
-                        <button onClick={resetMapView} className="map-zoom-btn" title="Reset tampilan">
+                        <button onClick={resetMapView} className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition border border-white/5" title="Reset tampilan">
                             <i className="fa-solid fa-arrows-to-dot text-xs"></i>
                         </button>
-                        <div className="flex items-center border border-slate-200 rounded-lg overflow-hidden shadow-sm">
-                            <button onClick={() => zoomMap(-1)} className="map-zoom-btn rounded-none border-0 border-r border-slate-200" title="Zoom Out">
+                        <div className="flex items-center bg-white/10 rounded-lg overflow-hidden border border-white/5">
+                            <button onClick={() => zoomMap(-1)} className="w-8 h-8 flex items-center justify-center hover:bg-white/20 text-white transition border-r border-white/10" title="Zoom Out">
                                 <i className="fa-solid fa-minus text-xs"></i>
                             </button>
-                            <span className="text-[10px] font-bold text-slate-600 px-3 min-w-[44px] text-center">{Math.round(mapScale * 100)}%</span>
-                            <button onClick={() => zoomMap(1)} className="map-zoom-btn rounded-none border-0" title="Zoom In">
+                            <span className="text-[10px] font-bold text-white px-3 min-w-[48px] text-center">{Math.round(mapScale * 100)}%</span>
+                            <button onClick={() => zoomMap(1)} className="w-8 h-8 flex items-center justify-center hover:bg-white/20 text-white transition border-l border-white/10" title="Zoom In">
                                 <i className="fa-solid fa-plus text-xs"></i>
                             </button>
                         </div>

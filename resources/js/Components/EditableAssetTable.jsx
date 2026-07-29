@@ -379,7 +379,7 @@ export default function EditableAssetTable({
 
     return (
         <ErrorBoundary>
-        <div className={`bg-white rounded-2xl shadow-sm border overflow-hidden fade-in mb-5 transition-all ${isEditing ? 'border-kai-blue/30 ring-1 ring-kai-blue/10' : 'border-slate-100'}`}>
+        <div className={`bg-white rounded-2xl shadow-card border overflow-hidden fade-in mb-5 transition-all ${isEditing ? 'border-kai-blue/30 ring-1 ring-kai-blue/10' : 'border-slate-200'}`}>
             {/* Header */}
             <div className="p-4 border-b border-slate-100 flex items-center justify-between">
                 <h3 className="text-sm font-extrabold text-kai-blue flex items-center gap-2">
@@ -431,29 +431,29 @@ export default function EditableAssetTable({
                         {/* Nested header (for CCTV-style tables) */}
                         {hasGroups ? (
                             <>
-                                <tr className="bg-slate-50 border-b border-slate-200 text-[10px] text-slate-400 font-bold uppercase tracking-wider text-center">
+                                <tr className="bg-slate-50 border-b border-slate-200 text-xs text-slate-500 font-bold uppercase tracking-wider text-center">
                                     {columns.filter(c => c.type !== 'display').map((col, i) => {
                                         if (col.type === 'group') {
                                             const subCount = (col.subColumns || []).filter(sc => sc.type !== 'display').length;
                                             if (subCount === 0) return null;
                                             return (
-                                                <th key={`hg-${i}`} colSpan={subCount} className="py-2 px-2 border border-slate-200 bg-purple-50 text-purple-600 font-bold">
+                                                <th key={`hg-${i}`} colSpan={subCount} className="py-2.5 px-2 border border-slate-200 bg-blue-50/50 text-kai-blue font-bold">
                                                     {col.label}
                                                 </th>
                                             );
                                         }
                                         return (
-                                            <th key={`rh-${i}`} rowSpan={2} className="py-3 px-2 border border-slate-200 bg-slate-100 text-slate-500 align-middle">
+                                            <th key={`rh-${i}`} rowSpan={2} className="py-3 px-3 border border-slate-200 bg-slate-50 text-slate-600 align-middle">
                                                 {col.label}
                                             </th>
                                         );
                                     })}
-                                    {isEditing && <th rowSpan={2} className="py-3 px-2 w-10 border border-slate-200"></th>}
+                                    {isEditing && <th rowSpan={2} className="py-3 px-2 w-10 border border-slate-200 bg-slate-50"></th>}
                                 </tr>
-                                <tr className="bg-slate-50 border-b border-slate-200 text-[10px] text-slate-400 font-bold uppercase tracking-wider text-center">
+                                <tr className="bg-slate-50 border-b border-slate-200 text-xs text-slate-500 font-bold uppercase tracking-wider text-center">
                                     {columns.filter(c => c.type === 'group').map(group => (
                                         (group.subColumns || []).filter(sc => sc.type !== 'display').map((subCol, si) => (
-                                            <th key={`sh-${group.key}-${si}`} className="py-2 px-2 border border-slate-200 bg-slate-50 text-slate-500">
+                                            <th key={`sh-${group.key}-${si}`} className="py-2.5 px-2 border border-slate-200 bg-white text-slate-600">
                                                 {subCol.subLabel || subCol.label}
                                             </th>
                                         ))
@@ -462,11 +462,11 @@ export default function EditableAssetTable({
                             </>
                         ) : (
                             /* Simple header (non-nested) */
-                            <tr className="bg-slate-50 border-b border-slate-200 text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                            <tr className="bg-slate-50 border-b border-slate-200 text-xs text-slate-500 font-bold uppercase tracking-wider">
                                 {dataColumns.map((col, i) => (
-                                    <th key={i} className="py-3 px-4 border border-slate-200 bg-slate-100 text-slate-500 text-left align-middle">{col.label}</th>
+                                    <th key={i} className="py-3 px-4 border border-slate-200 bg-slate-50 text-slate-600 text-left align-middle">{col.label}</th>
                                 ))}
-                                {isEditing && <th className="py-3 px-2 w-10 border border-slate-200 bg-slate-100"></th>}
+                                {isEditing && <th className="py-3 px-2 w-10 border border-slate-200 bg-slate-50"></th>}
                             </tr>
                         )}
                     </thead>
@@ -491,7 +491,7 @@ export default function EditableAssetTable({
                                         className={`border-b border-slate-100 transition ${
                                             isEditing 
                                                 ? 'hover:bg-kai-blue/5' 
-                                                : 'hover:bg-slate-50/50'
+                                                : 'hover:bg-blue-50/40'
                                         } ${row._isNew ? 'bg-emerald-50/30' : ''}`}
                                     >
                                         {dataColumns.map((col, colIdx) => {
