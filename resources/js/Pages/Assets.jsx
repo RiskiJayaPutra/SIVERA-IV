@@ -77,24 +77,62 @@ export default function Assets({ assetTypes = [], assets = [], totalAssets = 0, 
             );
         }
 
-        return displayLocations.map((loc, index) => {
-            const locAssets = groupedAssets[loc.id] || [];
+        // Build hierarchy
+        const roots = displayLocations.filter(l => !l.parent_id);
+        const childrenLocs = displayLocations.filter(l => l.parent_id);
+        
+        // Include children whose parent is not in displayLocations (orphans in current view)
+        const rootIds = new Set(roots.map(r => r.id));
+        const orphans = childrenLocs.filter(c => !rootIds.has(c.parent_id));
+        roots.push(...orphans);
+
+        return roots.map((root, index) => {
+            const rootAssets = groupedAssets[root.id] || [];
+            const myChildren = childrenLocs.filter(c => c.parent_id === root.id);
             
             return (
-                <div key={loc.id} className={index > 0 ? 'mt-8 border-t-2 border-slate-100 pt-8' : ''}>
+                <div key={root.id} className={index > 0 ? 'mt-8 border-t-2 border-slate-100 pt-8' : ''}>
+                    <div className="mb-4">
+                        <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                            <i className="fa-solid fa-building text-kai-blue"></i>
+                            {root.name}
+                        </h2>
+                    </div>
+
                     <EditableAssetTable 
-                        title={`Master Asset ${currentTab.name}`} 
-                        locationName={loc.name}
+                        title={`Aset ${currentTab.name} Induk`} 
+                        locationName={root.name}
                         icon={currentTab.icon} 
-                        data={locAssets} 
+                        data={rootAssets} 
                         columns={columns} 
                         headerGroups={currentSchema.headerGroups} 
                         readOnly={false}
                         isGlobalMode={false}
-                        locationId={loc.id}
+                        locationId={root.id}
                         assetTypeId={currentTab.id}
                         batchRoute="assets.batch"
                     />
+
+                    {myChildren.map(child => {
+                        const childAssets = groupedAssets[child.id] || [];
+                        return (
+                            <div key={child.id} className="mt-4 pl-4 md:pl-8 border-l-2 border-slate-200">
+                                <EditableAssetTable 
+                                    title={`Aset ${currentTab.name}`} 
+                                    locationName={child.name}
+                                    icon={currentTab.icon} 
+                                    data={childAssets} 
+                                    columns={columns} 
+                                    headerGroups={currentSchema.headerGroups} 
+                                    readOnly={false}
+                                    isGlobalMode={false}
+                                    locationId={child.id}
+                                    assetTypeId={currentTab.id}
+                                    batchRoute="assets.batch"
+                                />
+                            </div>
+                        );
+                    })}
                 </div>
             );
         });
@@ -214,28 +252,59 @@ export default function Assets({ assetTypes = [], assets = [], totalAssets = 0, 
                                     />
                                 </div>
                                 
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 max-h-[50vh] overflow-y-auto custom-scrollbar pr-2">
-                                    {locations.filter(loc => loc.name.toLowerCase().includes(modalSearch.toLowerCase())).map(loc => {
+                                <div className="max-h-[50vh] overflow-y-auto custom-scrollbar pr-2 flex flex-col gap-2">
+                                    {locations.filter(l => !l.parent_id).filter(loc => loc.name.toLowerCase().includes(modalSearch.toLowerCase()) || locations.some(c => c.parent_id === loc.id && c.name.toLowerCase().includes(modalSearch.toLowerCase()))).map(loc => {
                                         const isChecked = selectedLocs.includes(loc.id.toString());
+                                        const myChildren = locations.filter(c => c.parent_id === loc.id);
+                                        const matchesSearch = loc.name.toLowerCase().includes(modalSearch.toLowerCase());
+                                        
+                                        // Skip parent if it doesn't match and none of its children match
+                                        if (!matchesSearch && !myChildren.some(c => c.name.toLowerCase().includes(modalSearch.toLowerCase()))) return null;
+
                                         return (
-                                            <label 
-                                                key={loc.id} 
-                                                className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition border ${isChecked ? 'border-kai-blue bg-blue-50/50' : 'border-transparent hover:bg-slate-50'}`}
-                                            >
-                                                <input 
-                                                    type="checkbox"
-                                                    checked={isChecked}
-                                                    onChange={(e) => {
-                                                        if (e.target.checked) {
-                                                            setSelectedLocs([...selectedLocs, loc.id.toString()]);
-                                                        } else {
-                                                            setSelectedLocs(selectedLocs.filter(id => id !== loc.id.toString()));
-                                                        }
-                                                    }}
-                                                    className="rounded text-kai-blue focus:ring-kai-blue border-slate-300 w-4 h-4 shrink-0 cursor-pointer"
-                                                />
-                                                <span className="text-xs font-semibold text-slate-700 truncate" title={loc.name}>{loc.name}</span>
-                                            </label>
+                                            <div key={loc.id} className="border border-slate-100 rounded-xl overflow-hidden">
+                                                <label className={`flex items-center gap-3 p-3 cursor-pointer transition ${isChecked ? 'bg-blue-50/50' : 'hover:bg-slate-50'}`}>
+                                                    <input 
+                                                        type="checkbox"
+                                                        checked={isChecked}
+                                                        onChange={(e) => {
+                                                            if (e.target.checked) {
+                                                                setSelectedLocs([...selectedLocs, loc.id.toString()]);
+                                                            } else {
+                                                                setSelectedLocs(selectedLocs.filter(id => id !== loc.id.toString()));
+                                                            }
+                                                        }}
+                                                        className="rounded text-kai-blue focus:ring-kai-blue border-slate-300 w-4 h-4 shrink-0 cursor-pointer"
+                                                    />
+                                                    <div className="flex flex-col">
+                                                        <span className="text-sm font-bold text-slate-800">{loc.name}</span>
+                                                    </div>
+                                                </label>
+                                                {myChildren.length > 0 && (
+                                                    <div className="bg-slate-50/50 p-2 pl-10 flex flex-col gap-1 border-t border-slate-100">
+                                                        {myChildren.filter(c => c.name.toLowerCase().includes(modalSearch.toLowerCase()) || matchesSearch).map(child => {
+                                                            const isChildChecked = selectedLocs.includes(child.id.toString());
+                                                            return (
+                                                                <label key={child.id} className={`flex items-center gap-2 p-1.5 rounded-lg cursor-pointer transition ${isChildChecked ? 'bg-blue-50/30' : 'hover:bg-slate-100'}`}>
+                                                                    <input 
+                                                                        type="checkbox"
+                                                                        checked={isChildChecked}
+                                                                        onChange={(e) => {
+                                                                            if (e.target.checked) {
+                                                                                setSelectedLocs([...selectedLocs, child.id.toString()]);
+                                                                            } else {
+                                                                                setSelectedLocs(selectedLocs.filter(id => id !== child.id.toString()));
+                                                                            }
+                                                                        }}
+                                                                        className="rounded text-kai-blue focus:ring-kai-blue border-slate-300 w-3.5 h-3.5 shrink-0 cursor-pointer"
+                                                                    />
+                                                                    <span className="text-xs font-semibold text-slate-600">{child.name}</span>
+                                                                </label>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                )}
+                                            </div>
                                         );
                                     })}
                                 </div>

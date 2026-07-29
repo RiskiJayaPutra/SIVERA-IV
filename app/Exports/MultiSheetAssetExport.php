@@ -33,11 +33,13 @@ class MultiSheetAssetExport implements WithMultipleSheets
 
         $assetTypes = AssetType::whereIn('id', $this->categories)->get();
         
-        $locationsQuery = Location::query();
+        $locationsQuery = Location::with('parent');
         if (!empty($this->locationIds)) {
             $locationsQuery->whereIn('id', $this->locationIds);
         }
-        $allLocations = $locationsQuery->get();
+        $allLocations = $locationsQuery->get()->sortBy(function($loc) {
+            return ($loc->parent ? $loc->parent->name . ' - ' : '') . $loc->name;
+        });
 
         foreach ($assetTypes as $type) {
             $query = Asset::with('location')->where('asset_type_id', $type->id);

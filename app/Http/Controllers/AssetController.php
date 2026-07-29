@@ -33,7 +33,7 @@ class AssetController extends Controller
         $searchLoc = $request->query('search_location');
         $filterLocations = $request->query('locations', []);
 
-        $locations = Location::select('id', 'name')->get();
+        $locations = Location::select('id', 'name', 'type', 'parent_id')->orderBy('name')->get();
         $locationPagination = null;
         $displayLocations = collect();
 
@@ -45,7 +45,7 @@ class AssetController extends Controller
 
             if (empty($filterLocations) && empty($search) && empty($searchLoc)) {
                 // No filters: Paginate locations (e.g., 5 locations per page)
-                $paginatedLocs = Location::select('id', 'name')->paginate(5)->withQueryString();
+                $paginatedLocs = Location::select('id', 'name', 'type', 'parent_id')->whereNull('parent_id')->orderBy('name')->paginate(5)->withQueryString();
                 $displayLocations = collect($paginatedLocs->items());
                 $locationPagination = $paginatedLocs;
 
@@ -53,12 +53,18 @@ class AssetController extends Controller
             } else {
                 // Filters applied: Get assets based on filters
                 if (!empty($filterLocations)) {
-                    $query->whereIn('location_id', $filterLocations);
+                    // Include children of selected locations
+                    $childrenIds = Location::whereIn('parent_id', $filterLocations)->pluck('id')->toArray();
+                    $allAllowedLocs = array_merge($filterLocations, $childrenIds);
+                    $query->whereIn('location_id', $allAllowedLocs);
                 }
 
                 if (!empty($searchLoc)) {
                     $query->whereHas('location', function($q) use ($searchLoc) {
-                        $q->where('name', 'like', "%{$searchLoc}%");
+                        $q->where('name', 'like', "%{$searchLoc}%")
+                          ->orWhereHas('parent', function($q2) use ($searchLoc) {
+                              $q2->where('name', 'like', "%{$searchLoc}%");
+                          });
                     });
                 }
 

@@ -10,11 +10,14 @@ class LocationController extends Controller
 {
     public function index()
     {
-        $locations = Location::with('parent')->withCount([
-            'assets'
-        ])->paginate(15)->withQueryString();
+        // Fetch all locations without pagination to allow hierarchical rendering in frontend
+        $locations = Location::with('parent')->withCount(['assets'])->orderBy('name')->get();
+        
         return Inertia::render('Locations', [
-            'locations' => $locations,
+            'locations' => [
+                'data' => $locations, // Wrap in data to maintain frontend compatibility
+                'total' => $locations->count()
+            ],
         ]);
     }
 
