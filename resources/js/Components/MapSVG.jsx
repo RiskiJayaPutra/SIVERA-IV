@@ -400,8 +400,8 @@ export default function MapSVG({ onClickStation, locations = [] }) {
 
     return (
         <svg ref={svgRef} id="mapSVG" xmlns="http://www.w3.org/2000/svg"
-            width="1900" height="870"
-            viewBox="0 130 1900 870"
+            width="2100" height="850"
+            viewBox="0 130 2100 850"
             style={{ shapeRendering: 'geometricPrecision', textRendering: 'geometricPrecision' }}>
         </svg>
     );

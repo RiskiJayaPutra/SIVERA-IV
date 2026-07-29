@@ -16,8 +16,8 @@ export default function Dashboard({ assets = [], locations = [], stats = {} }) {
         if (!viewportRef.current) return;
         const vw = viewportRef.current.clientWidth;
         const vh = viewportRef.current.clientHeight;
-        const MAP_W = 2200;
-        const MAP_H = 1000;
+        const MAP_W = 2100;
+        const MAP_H = 850;
         const fitScale = Math.min((vw - 40) / MAP_W, (vh - 40) / MAP_H, 1);
         minScaleLimitRef.current = fitScale * 0.9;
         
