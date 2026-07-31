@@ -34,8 +34,8 @@ class AssetDummySeeder extends Seeder
             $this->command->info('Seeding dummy data for ' . $type->name . ' across all locations...');
             
             foreach ($locations as $location) {
-                // Generate 5-10 assets per location per type
-                $count = rand(5, 10);
+                // Generate 50-100 assets per location per type as requested
+                $count = rand(50, 100);
                 
                 for ($i = 1; $i <= $count; $i++) {
                     $data = [];
@@ -51,9 +51,6 @@ class AssetDummySeeder extends Seeder
                         
                         $selectedDevice = $faker->randomElement(array_keys($deviceOptions));
                         $deviceCode = $deviceOptions[$selectedDevice];
-                        
-                        $dropdownOptions = ['PC', 'PC AIO', 'Printer', 'Scanner', 'Lainnya'];
-                        $savedDeviceType = in_array($selectedDevice, $dropdownOptions) ? $selectedDevice : 'Lainnya';
 
                         $mmyy = $faker->dateTimeBetween('-5 years', 'now')->format('my'); // e.g. 0226
                         $source = $faker->randomElement(['1', '2']); // 1: Divre/TNK, 2: Pusat
@@ -65,7 +62,7 @@ class AssetDummySeeder extends Seeder
                         $data = [
                             'asset_number' => $assetNumber,
                             'serial_number' => strtoupper($faker->bothify('SN-????-####')),
-                            'device_type' => $savedDeviceType,
+                            'device_type' => $selectedDevice,
                             'nipp' => $faker->numerify('########'),
                             'nama' => $faker->name,
                         ];

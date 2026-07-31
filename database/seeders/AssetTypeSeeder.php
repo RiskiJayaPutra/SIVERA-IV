@@ -18,7 +18,7 @@ class AssetTypeSeeder extends Seeder
                     'columns' => [
                         ['key' => 'asset_number', 'label' => 'Nomor Asset', 'type' => 'text', 'mono' => true],
                         ['key' => 'serial_number', 'label' => 'Serial Number', 'type' => 'text', 'mono' => true],
-                        ['key' => 'device_type', 'label' => 'Jenis Perangkat', 'type' => 'select', 'bold' => true, 'options' => ['PC', 'PC AIO', 'Printer', 'Scanner', 'Lainnya']],
+                        ['key' => 'device_type', 'label' => 'Jenis Perangkat', 'type' => 'select', 'bold' => true, 'options' => ['PC', 'PC AIO', 'Laptop', 'Monitor', 'Printer', 'Scanner']],
                         ['key' => 'user_number', 'label' => 'Nomor Pengguna', 'type' => 'text'],
                         ['key' => 'user_name', 'label' => 'Nama Pengguna', 'type' => 'text'],
                     ]
