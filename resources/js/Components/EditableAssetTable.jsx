@@ -68,11 +68,11 @@ export default function EditableAssetTable({
             if (c.type === 'group') {
                 (c.subColumns || []).forEach(sc => {
                     if (sc.type !== 'display') {
-                        // Radio columns inside a group should save to the group's key
+                        // Radio columns inside a group should save to their schema-defined radioGroupKey, falling back to group key
                         cols.push({
                             ...sc,
-                            radioGroupKey: sc.type === 'radio' ? c.key : (sc.radioGroupKey || sc.key),
-                            radioGroup: sc.type === 'radio' ? c.key : (sc.radioGroup || sc.key)
+                            radioGroupKey: sc.radioGroupKey || (sc.type === 'radio' ? c.key : sc.key),
+                            radioGroup: sc.radioGroup || (sc.type === 'radio' ? c.key : sc.key)
                         });
                     }
                 });
