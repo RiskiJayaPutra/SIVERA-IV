@@ -77,6 +77,10 @@ class AssetTypeSeeder extends Seeder
                         ['key' => 'quantity', 'label' => 'Jumlah', 'type' => 'number'],
                         ['key' => 'condition', 'label' => 'Kondisi', 'type' => 'status', 'options' => ['Baik', 'Perawatan', 'Rusak']],
                         ['key' => 'description', 'label' => 'Keterangan', 'type' => 'text'],
+                    ],
+                    'headerGroups' => [
+                        ['id' => 'status_cctv', 'label' => 'Status CCTV', 'colSpan' => 2],
+                        ['id' => 'recorder', 'label' => 'Recorder', 'colSpan' => 3],
                     ]
                 ]
             ],
