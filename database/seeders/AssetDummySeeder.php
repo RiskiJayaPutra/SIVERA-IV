@@ -39,7 +39,7 @@ class AssetDummySeeder extends Seeder
                 
                 for ($i = 1; $i <= $count; $i++) {
                     $data = [];
-                    if ($type->slug === 'it') {
+                    if ($type->slug === 'it' || $type->slug === 'aset-it') {
                         $deviceOptions = [
                             'PC' => '001',
                             'Monitor' => '002',
@@ -66,8 +66,8 @@ class AssetDummySeeder extends Seeder
                             'asset_number' => $assetNumber,
                             'serial_number' => strtoupper($faker->bothify('SN-????-####')),
                             'device_type' => $savedDeviceType,
-                            'user_number' => $faker->numerify('NIPP-########'),
-                            'user_name' => $faker->name,
+                            'nipp' => $faker->numerify('########'),
+                            'nama' => $faker->name,
                         ];
                     } elseif ($type->slug === 'network') {
                         $data = [
@@ -90,6 +90,17 @@ class AssetDummySeeder extends Seeder
                             'description' => $faker->sentence(),
                         ];
                     } elseif ($type->slug === 'locotrack') {
+                        $indonesianDescriptions = [
+                            'Kondisi baik, beroperasi normal.',
+                            'Sedang dalam jadwal perawatan rutin.',
+                            'Memerlukan perbaikan pada modul antena.',
+                            'Telah dikalibrasi ulang.',
+                            'Unit pengganti sementara.',
+                            'Perlu penggantian baterai cadangan.',
+                            'Indikator signal lemah, butuh pengecekan.',
+                            'Berfungsi normal, siap digunakan.'
+                        ];
+                        
                         $data = [
                             'lct_id' => 'LCT-' . $faker->unique()->numerify('#####'),
                             'facility_number' => 'FAC-' . $faker->numerify('####'),
@@ -103,7 +114,7 @@ class AssetDummySeeder extends Seeder
                             'installation_year' => $faker->year(),
                             'facility_type' => $faker->randomElement(['Lokomotif', 'Gerbong']),
                             'serial_number' => strtoupper($faker->bothify('SN-LCT-####')),
-                            'description' => $faker->sentence(),
+                            'description' => $faker->randomElement($indonesianDescriptions),
                         ];
                     }
 
