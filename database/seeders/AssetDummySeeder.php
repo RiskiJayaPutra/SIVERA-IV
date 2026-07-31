@@ -76,15 +76,27 @@ class AssetDummySeeder extends Seeder
                             'router_brand' => $faker->randomElement(['Cisco', 'Juniper', 'Malpu', 'Tidak Ada']),
                         ];
                     } elseif ($type->slug === 'cctv') {
+                        $indonesianCctvDescriptions = [
+                            'Kamera berfungsi dengan baik, tidak ada *blind spot*.',
+                            'Kabel jaringan perlu dirapikan ulang.',
+                            'Lensa buram akibat debu, perlu dibersihkan.',
+                            'Recorder menyimpan data hingga 30 hari terakhir.',
+                            'Sudut pandang perlu disesuaikan kembali.',
+                            'Sistem *power supply* stabil.',
+                            'Memerlukan penggantian konektor BNC.',
+                            'Fokus kamera sedikit meleset di malam hari.',
+                            'Kondisi fisik *housing* sedikit retak namun aman.'
+                        ];
+                        
                         $data = [
-                            'train_number' => $faker->bothify('KA-###'),
+                            'train_number' => 'KA-' . $faker->numerify('###'),
                             'train_type' => $faker->randomElement(['Penumpang', 'Barang', 'Lori']),
                             'cctv_type' => $faker->randomElement(['ip', 'analog']),
                             'recorder_type' => $faker->randomElement(['dvr', 'nvr', 'standalone']),
                             'monitor' => $faker->randomElement(['Ada', 'Tidak Ada']),
-                            'quantity' => $faker->numberBetween(1, 16),
+                            'quantity' => $faker->numberBetween(1, 20),
                             'condition' => $faker->randomElement(['Baik', 'Perawatan', 'Rusak']),
-                            'description' => $faker->sentence(),
+                            'description' => $faker->randomElement($indonesianCctvDescriptions),
                         ];
                     } elseif ($type->slug === 'locotrack') {
                         $indonesianDescriptions = [
